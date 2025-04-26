@@ -30,9 +30,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UNiagaraSystem* FXCursor;
 
-	/** MappingContext */
+	/** TopDown MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
+	UInputMappingContext* TopDownMappingContext;
+
+	/** InGame MappingContext */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputMappingContext* InGameMappingContext;
 	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -41,6 +45,10 @@ public:
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationTouchAction;
+
+	/** Skip-Screen Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SkipScreenReleaseAction;
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -52,11 +60,13 @@ protected:
 	virtual void BeginPlay();
 
 	/** Input handlers for SetDestination action. */
-	void OnInputStarted();
+	void OnMovementInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 	void OnTouchTriggered();
 	void OnTouchReleased();
+
+	void OnSkipScreenReleased();
 
 private:
 	FVector CachedDestination;

@@ -4,6 +4,7 @@
 #include "MasterArbeitPlayerController.h"
 #include "MasterArbeitCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "GameFramework/HUD.h"
 
 AMasterArbeitGameMode::AMasterArbeitGameMode()
 {
@@ -22,5 +23,11 @@ AMasterArbeitGameMode::AMasterArbeitGameMode()
 	if(PlayerControllerBPClass.Class != NULL)
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<AHUD> HUDBPClass(TEXT("/Game/LongLiveMadness/Blueprint/Core/HUD_InGame"));
+	if (HUDBPClass.Class != NULL)
+	{
+		HUDClass = HUDBPClass.Class;
 	}
 }

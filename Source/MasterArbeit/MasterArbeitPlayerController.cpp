@@ -11,6 +11,8 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/HUD.h"
+#include "UI/InGameHUDInterface.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -36,23 +38,27 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 	// Add Input Mapping Context
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		Subsystem->AddMappingContext(InGameMappingContext, 0);
+		Subsystem->AddMappingContext(TopDownMappingContext, 0);
 	}
 
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnMovementInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AMasterArbeitPlayerController::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AMasterArbeitPlayerController::OnSetDestinationReleased);
 
 		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnMovementInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &AMasterArbeitPlayerController::OnTouchTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnTouchReleased);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AMasterArbeitPlayerController::OnTouchReleased);
+
+		// Setup temporary widget skip event
+		EnhancedInputComponent->BindAction(SkipScreenReleaseAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnSkipScreenReleased);
 	}
 	else
 	{
@@ -60,7 +66,7 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 	}
 }
 
-void AMasterArbeitPlayerController::OnInputStarted()
+void AMasterArbeitPlayerController::OnMovementInputStarted()
 {
 	StopMovement();
 }
@@ -122,4 +128,9 @@ void AMasterArbeitPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
+}
+
+void AMasterArbeitPlayerController::OnSkipScreenReleased()
+{
+	IInGameHUDInterface::Execute_SkipSkippableScreens(Cast<UObject>(GetHUD()));
 }
