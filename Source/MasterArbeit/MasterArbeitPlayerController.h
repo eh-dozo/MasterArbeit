@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
+#include "Grid/LandscapeGrid.h"
 #include "MasterArbeitPlayerController.generated.h"
 
 /** Forward declaration to improve compiling times */
@@ -50,6 +51,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SkipScreenReleaseAction;
 
+	/** Skip-Screen Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Grid, meta=(AllowPrivateAccess = "true"))
+	ALandscapeGrid* GridActor;
+
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -63,8 +68,8 @@ protected:
 	void OnMovementInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
+	//void OnTouchTriggered();
+	//void OnTouchReleased();
 
 	void OnSkipScreenReleased();
 
@@ -73,6 +78,7 @@ private:
 
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
+
 };
 
 

@@ -12,6 +12,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/HUD.h"
+#include "HAL/Platform.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/InGameHUDInterface.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -28,6 +30,11 @@ void AMasterArbeitPlayerController::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	TArray<AActor*> LandscapeGrids;
+	UGameplayStatics::GetAllActorsOfClass(this, ALandscapeGrid::StaticClass(), LandscapeGrids);
+
+	GridActor = Cast<ALandscapeGrid>(LandscapeGrids[0]);
 }
 
 void AMasterArbeitPlayerController::SetupInputComponent()
@@ -36,7 +43,8 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	// Add Input Mapping Context
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+		GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(InGameMappingContext, 0);
 		Subsystem->AddMappingContext(TopDownMappingContext, 0);
@@ -46,23 +54,31 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnMovementInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AMasterArbeitPlayerController::OnSetDestinationTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AMasterArbeitPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this,
+		                                   &AMasterArbeitPlayerController::OnMovementInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this,
+		                                   &AMasterArbeitPlayerController::OnSetDestinationTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this,
+		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this,
+		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);
 
 		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnMovementInputStarted);
+		/*EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnMovementInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &AMasterArbeitPlayerController::OnTouchTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AMasterArbeitPlayerController::OnTouchReleased);
+		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AMasterArbeitPlayerController::OnTouchReleased);*/
 
 		// Setup temporary widget skip event
-		EnhancedInputComponent->BindAction(SkipScreenReleaseAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnSkipScreenReleased);
+		EnhancedInputComponent->BindAction(SkipScreenReleaseAction, ETriggerEvent::Completed, this,
+		                                   &AMasterArbeitPlayerController::OnSkipScreenReleased);
 	}
 	else
 	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		UE_LOG(LogTemplateCharacter, Error,
+		       TEXT(
+			       "'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+		       ), *GetNameSafe(this));
 	}
 }
 
@@ -72,11 +88,12 @@ void AMasterArbeitPlayerController::OnMovementInputStarted()
 }
 
 // Triggered every frame when the input is held down
+
 void AMasterArbeitPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
-	
+
 	// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
 	bool bHitSuccessful = false;
@@ -94,41 +111,61 @@ void AMasterArbeitPlayerController::OnSetDestinationTriggered()
 	{
 		CachedDestination = Hit.Location;
 	}
-	
+
 	// Move towards mouse pointer or touch
-	APawn* ControlledPawn = GetPawn();
+	/*APawn* ControlledPawn = GetPawn();
 	if (ControlledPawn != nullptr)
 	{
 		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
 		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
-	}
+	}*/
 }
 
 void AMasterArbeitPlayerController::OnSetDestinationReleased()
 {
+	FVector TileCenterLocation = FVector(0.0f, 0.0f, 0.0f);
+	if (GridActor->LocateTileCenter(CachedDestination, TileCenterLocation))
+	{
+		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, TileCenterLocation);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,
+		                                               FXCursor,
+		                                               TileCenterLocation,
+		                                               FRotator::ZeroRotator,
+		                                               FVector(1.f, 1.f, 1.f),
+		                                               true,
+		                                               true,
+		                                               ENCPoolMethod::None,
+		                                               true);
+		UE_LOG(LogTemp, Error, TEXT("%f %f %f"), CachedDestination.X, CachedDestination.Y, CachedDestination.Z);
+	}
+	/*if (GridActor->LocateTileCenter_Implementation(CachedDestination, TileCenterLocation))
+	{
+		UE_LOG(LogTemp, Error, TEXT("HERE"));
+	}*/
+
 	// If it was a short press
-	if (FollowTime <= ShortPressThreshold)
+	/*if (FollowTime <= ShortPressThreshold)
 	{
 		// We move there and spawn some particles
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
-	}
+	}*/
 
 	FollowTime = 0.f;
 }
 
 // Triggered every frame when the input is held down
-void AMasterArbeitPlayerController::OnTouchTriggered()
+/*void AMasterArbeitPlayerController::OnTouchTriggered()
 {
 	bIsTouch = true;
 	OnSetDestinationTriggered();
-}
+}*/
 
-void AMasterArbeitPlayerController::OnTouchReleased()
+/*void AMasterArbeitPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
-}
+}*/
 
 void AMasterArbeitPlayerController::OnSkipScreenReleased()
 {
