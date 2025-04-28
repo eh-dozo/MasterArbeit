@@ -47,7 +47,6 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 		GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(InGameMappingContext, 0);
-		Subsystem->AddMappingContext(TopDownMappingContext, 0);
 	}
 
 	// Set up action bindings
@@ -62,12 +61,6 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this,
 		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);
-
-		// Setup touch input events
-		/*EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &AMasterArbeitPlayerController::OnMovementInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &AMasterArbeitPlayerController::OnTouchTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AMasterArbeitPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AMasterArbeitPlayerController::OnTouchReleased);*/
 
 		// Setup temporary widget skip event
 		EnhancedInputComponent->BindAction(SkipScreenReleaseAction, ETriggerEvent::Completed, this,
@@ -84,30 +77,17 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 
 void AMasterArbeitPlayerController::OnMovementInputStarted()
 {
-	StopMovement();
+	StopMovement(); //TODO: not if click is outside grid bounds
 }
 
 // Triggered every frame when the input is held down
 
 void AMasterArbeitPlayerController::OnSetDestinationTriggered()
 {
-	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
-	// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
-	bool bHitSuccessful = false;
-	if (bIsTouch)
-	{
-		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-	else
-	{
-		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-
-	// If we hit a surface, cache the location
-	if (bHitSuccessful)
+	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
 	{
 		CachedDestination = Hit.Location;
 	}
@@ -138,34 +118,9 @@ void AMasterArbeitPlayerController::OnSetDestinationReleased()
 		                                               true);
 		UE_LOG(LogTemp, Error, TEXT("%f %f %f"), CachedDestination.X, CachedDestination.Y, CachedDestination.Z);
 	}
-	/*if (GridActor->LocateTileCenter_Implementation(CachedDestination, TileCenterLocation))
-	{
-		UE_LOG(LogTemp, Error, TEXT("HERE"));
-	}*/
-
-	// If it was a short press
-	/*if (FollowTime <= ShortPressThreshold)
-	{
-		// We move there and spawn some particles
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
-	}*/
 
 	FollowTime = 0.f;
 }
-
-// Triggered every frame when the input is held down
-/*void AMasterArbeitPlayerController::OnTouchTriggered()
-{
-	bIsTouch = true;
-	OnSetDestinationTriggered();
-}*/
-
-/*void AMasterArbeitPlayerController::OnTouchReleased()
-{
-	bIsTouch = false;
-	OnSetDestinationReleased();
-}*/
 
 void AMasterArbeitPlayerController::OnSkipScreenReleased()
 {

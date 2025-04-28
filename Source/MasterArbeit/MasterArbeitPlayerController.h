@@ -31,10 +31,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UNiagaraSystem* FXCursor;
 
-	/** TopDown MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputMappingContext* TopDownMappingContext;
-
 	/** InGame MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* InGameMappingContext;
@@ -42,10 +38,6 @@ public:
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
-
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationTouchAction;
 
 	/** Skip-Screen Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -68,16 +60,14 @@ protected:
 	void OnMovementInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-	//void OnTouchTriggered();
-	//void OnTouchReleased();
 
 	void OnSkipScreenReleased();
 
 private:
 	FVector CachedDestination;
 
-	bool bIsTouch; // Is it a touch device
-	float FollowTime; // For how long it has been pressed
+	bool bIsTouch; 
+	float FollowTime; 
 
 };
 
