@@ -53,14 +53,14 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this,
+		/*EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this,
 		                                   &AMasterArbeitPlayerController::OnMovementInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this,
 		                                   &AMasterArbeitPlayerController::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this,
 		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this,
-		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);
+		                                   &AMasterArbeitPlayerController::OnSetDestinationReleased);*/
 
 		// Setup temporary widget skip event
 		EnhancedInputComponent->BindAction(SkipScreenReleaseAction, ETriggerEvent::Completed, this,
