@@ -27,8 +27,5 @@ public:
 	FTransform GetOwningActorTransform();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void CombatComp_StartUnitTurn();
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	UCombatComponent* GetCombatComponent();
 };

@@ -30,9 +30,16 @@ AMasterArbeitCharacter::AMasterArbeitCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	AbilitySystemComponent = CreateDefaultSubobject<UTBCAbilitySystemComponent>(TEXT("AbilitySystem"));
 }
 
 void AMasterArbeitCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+UAbilitySystemComponent* AMasterArbeitCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
