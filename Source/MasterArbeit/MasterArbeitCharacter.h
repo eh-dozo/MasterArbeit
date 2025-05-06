@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "Attributes/HealthAttributeSet.h"
 #include "GameFramework/Character.h"
-#include "TurnBasedCombatSystem/Public/TBCAbilitySystemComponent.h"
+#include "TBCAbilitySystemComponent.h"
 #include "MasterArbeitCharacter.generated.h"
 
 UCLASS(Blueprintable)
@@ -19,9 +20,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
 	TObjectPtr<UTBCAbilitySystemComponent> AbilitySystemComponent;
 
-	// Called every frame.
-	virtual void Tick(float DeltaSeconds) override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
+	TObjectPtr<UHealthAttributeSet> HealthSet;
 
+	virtual void BeginPlay() override;
+	
+	virtual void Tick(float DeltaSeconds) override;
+	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 };
 

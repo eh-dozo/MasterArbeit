@@ -31,7 +31,15 @@ AMasterArbeitCharacter::AMasterArbeitCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	AbilitySystemComponent = CreateDefaultSubobject<UTBCAbilitySystemComponent>(TEXT("AbilitySystem"));
+	AbilitySystemComponent = CreateDefaultSubobject<UTBCAbilitySystemComponent>(TEXT("ASC"));
+	HealthSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("HealthSet"));
+}
+
+void AMasterArbeitCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
 void AMasterArbeitCharacter::Tick(float DeltaSeconds)
