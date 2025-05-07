@@ -77,7 +77,7 @@ void AMasterArbeitPlayerController::SetupInputComponent()
 
 void AMasterArbeitPlayerController::OnMovementInputStarted()
 {
-	StopMovement(); //TODO: not if click is outside grid bounds
+	StopMovement();
 }
 
 // Triggered every frame when the input is held down

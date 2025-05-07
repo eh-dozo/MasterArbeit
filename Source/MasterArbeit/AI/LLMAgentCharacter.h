@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "MasterArbeit/MasterArbeitCharacter.h"
 #include "LLMAgentCharacter.generated.h"
 
+//DEPECRATED: BP class now inherit from MasterArbeitCharacter directly (because of shared editor properties like HealthBar Widget)
 UCLASS()
-class MASTERARBEIT_API ALLMAgentCharacter : public ACharacter
+class MASTERARBEIT_API ALLMAgentCharacter : public AMasterArbeitCharacter
 {
 	GENERATED_BODY()
 

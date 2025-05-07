@@ -12,7 +12,7 @@ AMasterArbeitGameMode::AMasterArbeitGameMode()
 	PlayerControllerClass = AMasterArbeitPlayerController::StaticClass();
 
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/LongLiveMadness/Blueprint/Core/Character/BP_PlayerCharacter"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/LongLiveMadness/Blueprint/Core/Player/BP_PlayerCharacter"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
