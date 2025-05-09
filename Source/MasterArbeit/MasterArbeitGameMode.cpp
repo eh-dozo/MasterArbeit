@@ -5,6 +5,7 @@
 #include "MasterArbeitCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/HUD.h"
+#include "Kismet/GameplayStatics.h"
 
 AMasterArbeitGameMode::AMasterArbeitGameMode()
 {
