@@ -49,6 +49,8 @@ void AMasterArbeitCharacter::Tick(float DeltaSeconds)
 void AMasterArbeitCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	/*UE_LOG(LogTemp, Warning, TEXT("%s"),
+	       *StaticEnum<ECharacterGroupName>()->GetNameStringByValue(CharacterGroupName.GetIntValue()));*/
 	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()
 	                               ->GetAttributeSetInitter()
 	                               ->InitAttributeSetDefaults(

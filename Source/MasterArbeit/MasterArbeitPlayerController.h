@@ -43,10 +43,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SkipScreenReleaseAction;
 
-	/** Skip-Screen Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Grid, meta=(AllowPrivateAccess = "true"))
-	ALandscapeGrid* GridActor;
-
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -55,11 +51,6 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
-
-	/** Input handlers for SetDestination action. */
-	void OnMovementInputStarted();
-	void OnSetDestinationTriggered();
-	void OnSetDestinationReleased();
 
 	void OnSkipScreenReleased();
 

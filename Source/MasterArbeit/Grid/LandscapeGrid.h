@@ -25,4 +25,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	bool LocateTileCenter(const FVector& CachedDestination, FVector& OutTileCenter);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	bool GetTileLocation(int Row, int Col, FVector& OutTileLocation);
 };
