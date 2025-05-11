@@ -38,7 +38,6 @@ AMasterArbeitCharacter::AMasterArbeitCharacter()
 void AMasterArbeitCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
 void AMasterArbeitCharacter::Tick(float DeltaSeconds)
@@ -49,13 +48,15 @@ void AMasterArbeitCharacter::Tick(float DeltaSeconds)
 void AMasterArbeitCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	/*UE_LOG(LogTemp, Warning, TEXT("%s"),
-	       *StaticEnum<ECharacterGroupName>()->GetNameStringByValue(CharacterGroupName.GetIntValue()));*/
+	FName CharacterGroupNameValue(
+		StaticEnum<ECharacterGroupName>()->GetNameStringByValue(CharacterGroupName.GetIntValue()));
+	/*UE_LOG(LogTemp, Warning, TEXT("%s"), *CharacterGroupNameValue.ToString());*/
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()
 	                               ->GetAttributeSetInitter()
 	                               ->InitAttributeSetDefaults(
 		                               AbilitySystemComponent,
-		                               FName(StaticEnum<ECharacterGroupName>()->GetNameStringByValue(CharacterGroupName.GetIntValue())),
+		                               CharacterGroupNameValue,
 		                               1,
 		                               true);
 	AbilitySystemComponent->RefreshAbilityActorInfo();
