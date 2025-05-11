@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
-#include "HealthAttributeSet.generated.h"
+#include "CombatAttributeSet.generated.h"
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
@@ -19,12 +19,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAttributeChangedEvent, UAttribut
  * 
  */
 UCLASS()
-class TURNBASEDCOMBATSYSTEM_API UHealthAttributeSet : public UAttributeSet
+class TURNBASEDCOMBATSYSTEM_API UCombatAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
 public:
-	UHealthAttributeSet();
+	UCombatAttributeSet();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (HideFromModifiers))
 	FGameplayAttributeData Health;
@@ -34,14 +34,22 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FGameplayAttributeData Damage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData Heal;
 	
-	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, Health);
-	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, MaxHealth);
-	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, Damage);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData Initiative;
 	
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Health);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Damage);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Heal);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Initiative);
+
 	UPROPERTY(BlueprintAssignable)
 	FAttributeChangedEvent OnHealthChanged;
-	
+
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;

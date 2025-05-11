@@ -1,13 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "MasterArbeitCharacter.h"
+
+#include "AbilitySystemGlobals.h"
+#include "GameplayAbilitiesModule.h"
 #include "UObject/ConstructorHelpers.h"
-#include "Camera/CameraComponent.h"
-#include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
 
@@ -32,19 +32,31 @@ AMasterArbeitCharacter::AMasterArbeitCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UTBCAbilitySystemComponent>(TEXT("ASC"));
-	HealthSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("HealthSet"));
+	CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>(TEXT("CombatAttributeSet"));
 }
 
 void AMasterArbeitCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
 void AMasterArbeitCharacter::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaSeconds);
+}
+
+void AMasterArbeitCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()
+	                               ->GetAttributeSetInitter()
+	                               ->InitAttributeSetDefaults(
+		                               AbilitySystemComponent,
+		                               FName(StaticEnum<ECharacterGroupName>()->GetNameStringByValue(CharacterGroupName.GetIntValue())),
+		                               1,
+		                               true);
+	AbilitySystemComponent->RefreshAbilityActorInfo();
 }
 
 UAbilitySystemComponent* AMasterArbeitCharacter::GetAbilitySystemComponent() const
