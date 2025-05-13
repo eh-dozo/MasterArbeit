@@ -32,7 +32,7 @@ AMasterArbeitCharacter::AMasterArbeitCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UTBCAbilitySystemComponent>(TEXT("ASC"));
-	CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>(TEXT("CombatAttributeSet"));
+	//CombatAttributeSet = CreateDefaultSubobject<UCombatAttributeSet>(TEXT("CombatAttributeSet"));
 }
 
 void AMasterArbeitCharacter::BeginPlay()
@@ -48,18 +48,24 @@ void AMasterArbeitCharacter::Tick(float DeltaSeconds)
 void AMasterArbeitCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	FName CharacterGroupNameValue(
-		StaticEnum<ECharacterGroupName>()->GetNameStringByValue(CharacterGroupName.GetIntValue()));
-	/*UE_LOG(LogTemp, Warning, TEXT("%s"), *CharacterGroupNameValue.ToString());*/
+
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()
-	                               ->GetAttributeSetInitter()
-	                               ->InitAttributeSetDefaults(
-		                               AbilitySystemComponent,
-		                               CharacterGroupNameValue,
-		                               1,
-		                               true);
-	AbilitySystemComponent->RefreshAbilityActorInfo();
+	if (AbilitySystemComponent)
+	{
+		/*UE_LOG(LogTemp, Warning, TEXT("%s"), *CharacterGroupNameValue.ToString());*/
+		AbilitySystemComponent->AddSet<UCombatAttributeSet>();
+
+		IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()
+		                               ->GetAttributeSetInitter()
+		                               ->InitAttributeSetDefaults(
+			                               AbilitySystemComponent,
+			                               StaticEnum<ECharacterGroupName>()->GetNameByValue(
+				                               CharacterGroupName.GetIntValue()),
+			                               1,
+			                               true);
+	}
+
+	//AbilitySystemComponent->RefreshAbilityActorInfo();
 }
 
 UAbilitySystemComponent* AMasterArbeitCharacter::GetAbilitySystemComponent() const

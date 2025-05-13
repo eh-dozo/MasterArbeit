@@ -33,8 +33,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
 	TObjectPtr<UTBCAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
-	TObjectPtr<UCombatAttributeSet> CombatAttributeSet;
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
+	TObjectPtr<UCombatAttributeSet> CombatAttributeSet;*/
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
