@@ -52,7 +52,6 @@ void AMasterArbeitCharacter::PostInitializeComponents()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	if (AbilitySystemComponent)
 	{
-		/*UE_LOG(LogTemp, Warning, TEXT("%s"), *CharacterGroupNameValue.ToString());*/
 		AbilitySystemComponent->AddSet<UCombatAttributeSet>();
 
 		IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()
@@ -64,8 +63,6 @@ void AMasterArbeitCharacter::PostInitializeComponents()
 			                               1,
 			                               true);
 	}
-
-	//AbilitySystemComponent->RefreshAbilityActorInfo();
 }
 
 UAbilitySystemComponent* AMasterArbeitCharacter::GetAbilitySystemComponent() const

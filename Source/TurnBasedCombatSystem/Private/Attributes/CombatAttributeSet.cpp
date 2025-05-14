@@ -19,7 +19,7 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
-	
+
 	Super::PreAttributeChange(Attribute, NewValue);
 }
 
@@ -34,7 +34,8 @@ void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribut
 	{
 		if (GetHealth() > NewValue)
 		{
-			UTBCAbilitySystemComponent* TBCASC = static_cast<UTBCAbilitySystemComponent*>(GetOwningAbilitySystemComponent());
+			UTBCAbilitySystemComponent* TBCASC = static_cast<UTBCAbilitySystemComponent*>(
+				GetOwningAbilitySystemComponent());
 			check(TBCASC);
 
 			TBCASC->ApplyModToAttribute(GetHealthAttribute(), EGameplayModOp::Override, NewValue);
@@ -64,10 +65,7 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffect
 		const float OldHealthValue = GetHealth();
 		const float NewHealthValue = FMath::Clamp(OldHealthValue + GetHeal(), 0.0f, GetMaxHealth());
 
-		if (OldHealthValue != NewHealthValue)
-		{
-			SetHealth(NewHealthValue);
-		}
+		SetHealth(NewHealthValue);
 
 		SetHeal(0.0f);
 	}
