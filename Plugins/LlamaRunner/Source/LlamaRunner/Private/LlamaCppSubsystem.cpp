@@ -10,6 +10,11 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogLlamaRunner, Log, All);
 
+bool ULlamaCppSubsystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	return Super::ShouldCreateSubsystem(Outer);
+}
+
 void ULlamaCppSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
