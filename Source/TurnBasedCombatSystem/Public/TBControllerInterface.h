@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CombatComponent.h"
+#include "TBComponent.h"
 #include "UObject/Interface.h"
-#include "TBCControllerInterface.generated.h"
+#include "TBControllerInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(Blueprintable, BlueprintType)
-class UTBCControllerInterface : public UInterface
+class UTBControllerInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -17,7 +17,7 @@ class UTBCControllerInterface : public UInterface
 /**
  * 
  */
-class MASTERARBEIT_API ITBCControllerInterface
+class TURNBASEDCOMBATSYSTEM_API ITBControllerInterface
 {
 	GENERATED_BODY()
 
@@ -27,5 +27,5 @@ public:
 	FTransform GetOwningActorTransform();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	UCombatComponent* GetCombatComponent();
+	UTBComponent* GetCombatComponent();
 };
