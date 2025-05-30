@@ -13,20 +13,20 @@ AMasterArbeitGameMode::AMasterArbeitGameMode()
 	PlayerControllerClass = AMasterArbeitPlayerController::StaticClass();
 
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/LongLiveMadness/Blueprint/Core/Player/BP_PlayerCharacter"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/LongLiveMadness/Player/BP_PlayerCharacter"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
 	// set default controller to our Blueprinted controller
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/LongLiveMadness/Blueprint/Core/Player/BP_TopDownPlayerController"));
+	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/LongLiveMadness/Player/BP_TopDownPlayerController"));
 	if(PlayerControllerBPClass.Class != NULL)
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<AHUD> HUDBPClass(TEXT("/Game/LongLiveMadness/Blueprint/Core/HUD_InGame"));
+	static ConstructorHelpers::FClassFinder<AHUD> HUDBPClass(TEXT("/Game/LongLiveMadness/Player/HUD_InGame"));
 	if (HUDBPClass.Class != NULL)
 	{
 		HUDClass = HUDBPClass.Class;

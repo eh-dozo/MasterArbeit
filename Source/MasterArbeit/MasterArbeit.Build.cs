@@ -21,7 +21,14 @@ public class MasterArbeit : ModuleRules
 			"TurnBasedCombatSystem",
 			"GameplayAbilities",
 			"GameplayTags",
-			"GameplayTasks"
+			"GameplayTasks",
+			"StateTreeModule",
+			"GameplayStateTreeModule"
+		});
+		
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			
 		});
 	}
 }
