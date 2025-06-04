@@ -178,7 +178,7 @@ struct FChatMessage : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner")
 	TEnumAsByte<EChatRole> ChatRole = System;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(MultiLine))
 	FString Content;
 };
 
