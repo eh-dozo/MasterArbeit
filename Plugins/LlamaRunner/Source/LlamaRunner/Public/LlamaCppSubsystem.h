@@ -7,6 +7,8 @@
 #include "llama-cpp.h"
 //THIRD_PARTY_INCLUDES_END
 #include "CoreMinimal.h"
+#include "Containers/Map.h"
+#include "Containers/UnrealString.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "LlamaCppSubsystem.generated.h"
 
@@ -25,6 +27,14 @@ enum ELlamaSamplerMethod
 	Greedy,
 	Dist,
 	Mirostat
+};
+
+UENUM(BlueprintType)
+enum EChatRole
+{
+	System,
+	User,
+	Assistant
 };
 
 USTRUCT(BlueprintType)
@@ -160,6 +170,18 @@ struct FLlamaCppSubsystemSamplerConfig
 	float PenaltyPresent = 0.0f;
 };
 
+USTRUCT(BlueprintType)
+struct FChatMessage : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner")
+	TEnumAsByte<EChatRole> ChatRole = System;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner")
+	FString Content;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInferenceCompleteDelegate, const FString&, Response);
 
 /**
@@ -202,9 +224,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
 	void ClearChatHistory();
 
+	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
+	void AddStartChatHistory(const TArray<FChatMessage>& ChatHistory, const FString& SystemPrompt, bool bClearHistoryFirst);
+	
 	UFUNCTION(BlueprintSetter, Category="LlamaRunner")
 	void SetSamplerConfig(FLlamaCppSubsystemSamplerConfig NewConfig);
 
 private:
 	FString Generate(const FString& Prompt);
+
+	void ClearChatMessages();
 };

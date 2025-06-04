@@ -15,13 +15,13 @@ public class MasterArbeit : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"NavigationSystem",
-			"AIModule",
 			"Niagara",
 			"EnhancedInput",
 			"TurnBasedCombatSystem",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
+			"AIModule",
 			"StateTreeModule",
 			"GameplayStateTreeModule"
 		});

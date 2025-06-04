@@ -37,6 +37,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Defaults", NoClear)
 	TSubclassOf<AAIController> AIControllerClass = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Defaults", NoClear)
-	USystemPromptDataAsset* SystemPromptDataAsset = nullptr;
+	/*UPROPERTY(EditAnywhere, Category = "Defaults", NoClear)
+	USystemPromptDataAsset* SystemPromptDataAsset = nullptr;*/
 };
