@@ -2,11 +2,36 @@
 
 
 #include "STTConstructCharacterPrompt.h"
+#include "StateTreeExecutionContext.h"
 
-EStateTreeRunStatus USTTConstructCharacterPrompt::EnterState(FStateTreeExecutionContext& Context,
-	const FStateTreeTransitionResult& Transition)
+#define LOCTEXT_NAMESPACE "StateTree"
+
+EStateTreeRunStatus FStateTreeCharacterPromptTask::EnterState(FStateTreeExecutionContext& Context,
+	const FStateTreeTransitionResult& Transition) const
 {
-	//Super::EnterState(Context, Transition);
-	UE_LOG(LogTemp, Error, TEXT("%s"), *SystemPromptDataAsset->SystemPrompt.ToString());
-	return EStateTreeRunStatus::Succeeded;
+	FInstanceDataType& InstanceData = Context.GetInstanceData(*this);
+	if (InstanceData.SystemPromptDataAsset != NULL)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s"), *InstanceData.SystemPromptDataAsset->SystemPrompt.ToString());
+	}
+	
+	return EStateTreeRunStatus::Running;
 }
+
+#if WITH_EDITOR
+FText FStateTreeCharacterPromptTask::GetDescription(const FGuid& ID, FStateTreeDataView InstanceDataView,
+	const IStateTreeBindingLookup& BindingLookup, EStateTreeNodeFormatting Formatting) const
+{
+	const FInstanceDataType* InstanceData = InstanceDataView.GetPtr<FInstanceDataType>();
+	check(InstanceData);
+	
+	const FText Format = (Formatting == EStateTreeNodeFormatting::RichText)
+			? LOCTEXT("ConstructCharacterPromptRich", "<b>Character Prompt</> \"{Text}\"")
+			: LOCTEXT("ConstructCharacterPrompt", "Character Prompt \"{Text}\"");
+
+	return FText::FormatNamed(Format,
+		TEXT("Text"), LOCTEXT("The prompt", "The prompt")); //TODO: find better description
+}
+#endif
+
+#undef LOCTEXT_NAMESPACE

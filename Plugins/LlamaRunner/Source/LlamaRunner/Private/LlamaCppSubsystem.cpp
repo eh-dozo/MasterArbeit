@@ -146,11 +146,7 @@ void ULlamaCppSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
 
-	for (const llama_chat_message ChatMessage : ChatMessages)
-	{
-		free(const_cast<char*>(ChatMessage.content));
-	}
-	ChatMessages.Empty();
+	ClearChatMessages();
 
 	if (Sampler.get())
 	{
@@ -261,7 +257,7 @@ void ULlamaCppSubsystem::AsyncProcessUserPrompt(const FString& UserPrompt, const
 			UE_LOG(LogLlamaRunner, Error, TEXT("Role: %hs | Content: %hs"), role, content);
 		}
 #endif
-		
+
 		OnInferenceComplete.Broadcast(ChatMessages.Last().content);
 	});
 }
@@ -416,6 +412,16 @@ FString ULlamaCppSubsystem::Generate(const FString& Prompt)
 	return Response;
 }
 
+void ULlamaCppSubsystem::ClearChatMessages()
+{
+	for (const llama_chat_message& ChatMessage : ChatMessages)
+	{
+		free(const_cast<char*>(ChatMessage.content));
+	}
+
+	ChatMessages.Empty();
+}
+
 void ULlamaCppSubsystem::ClearChatHistory()
 {
 	if (bIsGenerating)
@@ -424,12 +430,7 @@ void ULlamaCppSubsystem::ClearChatHistory()
 		return;
 	}
 
-	for (const llama_chat_message& ChatMessage : ChatMessages)
-	{
-		free(const_cast<char*>(ChatMessage.content));
-	}
-
-	ChatMessages.Empty();
+	ClearChatMessages();
 
 	if (Sampler.get())
 	{
@@ -525,6 +526,85 @@ void ULlamaCppSubsystem::ClearChatHistory()
 	}
 
 	UE_LOG(LogLlamaRunner, Display, TEXT("Chat history has been cleared successfully"));
+}
+
+void ULlamaCppSubsystem::AddStartChatHistory(const TArray<FChatMessage>& ChatHistory,
+                                             const FString& SystemPrompt,
+                                             bool bClearHistoryFirst)
+{
+	if (bIsGenerating)
+	{
+		UE_LOG(LogLlamaRunner, Error, TEXT("Model is still running, aborting clear and add chat history."));
+		return;
+	}
+
+	if (ChatHistory.Num() == 0)
+	{
+		UE_LOG(LogLlamaRunner, Warning, TEXT("Empty chat history provided."));
+		return;
+	}
+
+	if (bClearHistoryFirst)
+	{
+		ClearChatHistory();
+	}
+
+	bool bExpectingUser = true;
+
+	if (ChatMessages.IsEmpty() && !SystemPrompt.IsEmpty())
+	{
+		ChatMessages.Push({"system", _strdup(TCHAR_TO_UTF8(*SystemPrompt))});
+	}
+
+	for (int i = 0; i < ChatHistory.Num(); ++i)
+	{
+		const FString& ChatRole = *StaticEnum<EChatRole>()->GetNameStringByValue(ChatHistory[i].ChatRole);
+
+		if (bExpectingUser)
+		{
+			if (ChatHistory[i].ChatRole != EChatRole::User)
+			{
+				UE_LOG(LogLlamaRunner, Error,
+				       TEXT(
+					       "Expected 'user' role at index %d but got '%s'. Chat history must alternate between 'user' and 'assistant' starting with 'user'."
+				       ),
+				       i, *ChatRole)
+
+				ClearChatMessages();
+				return;
+			}
+			bExpectingUser = false;
+		}
+		else
+		{
+			if (ChatHistory[i].ChatRole != EChatRole::Assistant)
+			{
+				UE_LOG(LogLlamaRunner, Error,
+				       TEXT(
+					       "Expected 'assistant' role at index %d but got '%s'. Chat history must alternate between 'user' and 'assistant' starting with 'user'."
+				       ),
+				       i, *ChatRole)
+
+				ClearChatMessages();
+				return;
+			}
+			bExpectingUser = true;
+		}
+
+		const FString& ChatRoleLower = *ChatRole.ToLower();
+		const FString& ChatContent = *ChatHistory[i].Content;
+
+#if !UE_BUILD_SHIPPING
+		UE_LOG(LogLlamaRunner, Warning, TEXT("Loaded - Role: %s | Content: %s"), *ChatRoleLower, *ChatContent);
+#endif
+
+		ChatMessages.Push({
+			_strdup(TCHAR_TO_UTF8(*ChatRole.ToLower())),
+			_strdup(TCHAR_TO_UTF8(*ChatContent))
+		});
+	}
+
+	UE_LOG(LogLlamaRunner, Display, TEXT("Successfully loaded %d chat messages from history."), ChatMessages.Num());
 }
 
 void ULlamaCppSubsystem::SetSamplerConfig(FLlamaCppSubsystemSamplerConfig NewConfig)
