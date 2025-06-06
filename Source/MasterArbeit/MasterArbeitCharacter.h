@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "Attributes/CombatAttributeSet.h"
 #include "GameFramework/Character.h"
 #include "TBCAbilitySystemComponent.h"
 #include "MasterArbeitCharacter.generated.h"
@@ -19,6 +18,9 @@ enum ECharacterGroupName
 	Purple
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTurnEndDelegate, AMasterArbeitCharacter*, MasterArbeitCharacter);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTurnStartDelegate);
+
 UCLASS(Blueprintable)
 class AMasterArbeitCharacter : public ACharacter, public  IAbilitySystemInterface
 {
@@ -32,6 +34,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
 	TObjectPtr<UTBCAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FTurnEndDelegate OnTurnEnd;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FTurnStartDelegate OnTurnStart;
 
 	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
 	TObjectPtr<UCombatAttributeSet> CombatAttributeSet;*/

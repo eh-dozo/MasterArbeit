@@ -19,6 +19,14 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
+	if (Attribute == GetActionPointsAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxActionPoints());
+	}
+	if (Attribute == GetMovementPointsAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxMovementPoints());
+	}
 
 	Super::PreAttributeChange(Attribute, NewValue);
 }
@@ -30,7 +38,7 @@ void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribut
 	{
 		OnHealthChanged.Broadcast(this, OldValue, NewValue);
 	}
-	else if (Attribute == GetMaxHealthAttribute())
+	if (Attribute == GetMaxHealthAttribute())
 	{
 		if (GetHealth() > NewValue)
 		{
@@ -42,6 +50,40 @@ void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribut
 		}
 		const float CurrentHealth = GetHealth();
 		OnHealthChanged.Broadcast(this, CurrentHealth, CurrentHealth);
+	}
+	if (Attribute == GetActionPointsAttribute())
+	{
+		OnActionPointsChanged.Broadcast(this, OldValue, NewValue);
+	}
+	if (Attribute == GetMaxActionPointsAttribute())
+	{
+		if (GetActionPoints() > NewValue)
+		{
+			UTBCAbilitySystemComponent* TBCASC = static_cast<UTBCAbilitySystemComponent*>(
+				GetOwningAbilitySystemComponent());
+			check(TBCASC);
+
+			TBCASC->ApplyModToAttribute(GetActionPointsAttribute(), EGameplayModOp::Override, NewValue);
+		}
+		const float CurrentActionPoints = GetActionPoints();
+		OnActionPointsChanged.Broadcast(this, CurrentActionPoints, CurrentActionPoints);
+	}
+	if (Attribute == GetMovementPointsAttribute())
+	{
+		OnMovementPointsChanged.Broadcast(this, OldValue, NewValue);
+	}
+	if (Attribute == GetMaxMovementPointsAttribute())
+	{
+		if (GetMovementPoints() > NewValue)
+		{
+			UTBCAbilitySystemComponent* TBCASC = static_cast<UTBCAbilitySystemComponent*>(
+				GetOwningAbilitySystemComponent());
+			check(TBCASC);
+
+			TBCASC->ApplyModToAttribute(GetMovementPointsAttribute(), EGameplayModOp::Override, NewValue);
+		}
+		const float CurrentMovementPoints = GetActionPoints();
+		OnMovementPointsChanged.Broadcast(this, CurrentMovementPoints, CurrentMovementPoints);
 	}
 }
 

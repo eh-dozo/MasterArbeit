@@ -40,15 +40,37 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FGameplayAttributeData Initiative;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData ActionPoints;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData MaxActionPoints;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData MovementPoints;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData MaxMovementPoints;
 	
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Damage);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Heal);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Initiative);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, ActionPoints);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxActionPoints);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MovementPoints);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxMovementPoints);
 
 	UPROPERTY(BlueprintAssignable)
 	FAttributeChangedEvent OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FAttributeChangedEvent OnActionPointsChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FAttributeChangedEvent OnMovementPointsChanged;
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
