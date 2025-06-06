@@ -4,6 +4,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "GameplayAbilitiesModule.h"
+#include "Attributes/CombatAttributeSet.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"

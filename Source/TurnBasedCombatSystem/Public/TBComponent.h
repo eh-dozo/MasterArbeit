@@ -6,8 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "TBComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTurnEndDelegate, UTBComponent*, TurnBasedComponent);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTurnStartDelegate);
 
 UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TURNBASEDCOMBATSYSTEM_API UTBComponent : public UActorComponent
@@ -18,11 +16,11 @@ public:
 	// Sets default values for this component's properties
 	UTBComponent();
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FTurnEndDelegate OnTurnEnd;
+	/*UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FTurnEndDelegate OnTurnEnd;*/
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FOnTurnStartDelegate OnTurnStart;
+	/*UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnTurnStartDelegate OnTurnStart;*/
 
 protected:
 	// Called when the game starts
