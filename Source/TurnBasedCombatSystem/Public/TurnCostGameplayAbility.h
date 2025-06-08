@@ -14,6 +14,8 @@ class TURNBASEDCOMBATSYSTEM_API UTurnCostGameplayAbility : public UGameplayAbili
 {
 	GENERATED_BODY()
 
+	UTurnCostGameplayAbility(const FObjectInitializer& ObjectInitializer);
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cost;

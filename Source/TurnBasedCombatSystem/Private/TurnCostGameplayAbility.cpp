@@ -2,3 +2,9 @@
 
 
 #include "TurnCostGameplayAbility.h"
+
+UTurnCostGameplayAbility::UTurnCostGameplayAbility(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer),
+	  Cost(0)
+{
+}

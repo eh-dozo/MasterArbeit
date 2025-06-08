@@ -3,9 +3,17 @@
 
 #include "TextCommunicationSubsystem.h"
 
-UCharacterChatMessageWrapper::UCharacterChatMessageWrapper()
+FCharacterChatMessageTableRow::FCharacterChatMessageTableRow(const FCharacterChatMessage& NewCharacterChatMessage)
 {
-	
+	CharacterChatMessage = NewCharacterChatMessage;
+}
+
+UCharacterChatMessageWrapper* UCharacterChatMessageWrapper::CreateWrapper(UObject* Outer,
+                                                                          const FCharacterChatMessage& Message)
+{
+	UCharacterChatMessageWrapper* Wrapper = NewObject<UCharacterChatMessageWrapper>(Outer);
+	Wrapper->CharacterChatMessage = Message;
+	return Wrapper;
 }
 
 void UTextCommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -13,9 +21,7 @@ void UTextCommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 	Super::Initialize(Collection);
 
 	CharacterChatMessages = NewObject<UDataTable>(this);
-	CharacterChatMessages->RowStruct = FCharacterChatMessage::StaticStruct();
-
-	
+	CharacterChatMessages->RowStruct = FCharacterChatMessageTableRow::StaticStruct();
 }
 
 void UTextCommunicationSubsystem::AddCharacterChatMessage(FCharacterChatMessage CharacterChatMessage)
@@ -32,11 +38,21 @@ void UTextCommunicationSubsystem::AddCharacterChatMessage(FCharacterChatMessage 
 		return;
 	}
 
-	FString RowName = FString::Printf(TEXT("%s_%lld"), 
-		*UEnum::GetValueAsString(CharacterChatMessage.CharacterName.GetValue()),
-		FDateTime::Now().GetTicks());
+	FString RowName = FString::Printf(TEXT("%s_%lld"),
+	                                  *UEnum::GetValueAsString(CharacterChatMessage.CharacterName.GetValue()),
+	                                  FDateTime::Now().GetTicks());
+	FCharacterChatMessageTableRow NewCCMTableRow = FCharacterChatMessageTableRow(CharacterChatMessage);
 
-	CharacterChatMessages->AddRow(FName(*RowName), CharacterChatMessage);
+	CharacterChatMessages->AddRow(FName(*RowName), NewCCMTableRow);
+	FCharacterChatMessage* NewCharacterChatMessage =
+		&CharacterChatMessages->FindRow<FCharacterChatMessageTableRow>(
+			                     FName(*RowName),
+			                     "CharacterChatMessages::GetNewlyAddedRow",
+			                     true)
+		                     ->CharacterChatMessage;
 
-	OnNewCharacterChatMessage.Broadcast(CharacterChatMessage);
+	if (NewCharacterChatMessage != NULL)
+	{
+		OnNewCharacterChatMessage.Broadcast(UCharacterChatMessageWrapper::CreateWrapper(this, *NewCharacterChatMessage));
+	}
 }
