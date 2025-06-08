@@ -82,7 +82,7 @@ void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribut
 
 			TBCASC->ApplyModToAttribute(GetMovementPointsAttribute(), EGameplayModOp::Override, NewValue);
 		}
-		const float CurrentMovementPoints = GetActionPoints();
+		const float CurrentMovementPoints = GetMovementPoints();
 		OnMovementPointsChanged.Broadcast(this, CurrentMovementPoints, CurrentMovementPoints);
 	}
 }

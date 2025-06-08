@@ -7,8 +7,9 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "TextCommunicationSubsystem.generated.h"
 
+
 USTRUCT(BlueprintType, Category="TextCommunication | UIChat")
-struct FCharacterChatMessage : public FTableRowBase
+struct FCharacterChatMessage
 {
 	GENERATED_BODY()
 
@@ -22,20 +23,36 @@ struct FCharacterChatMessage : public FTableRowBase
 	FLinearColor ThemeColor = FLinearColor::White;
 };
 
+USTRUCT(BlueprintType, Category="TextCommunication | UIChat")
+struct FCharacterChatMessageTableRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	FCharacterChatMessageTableRow() {}
+
+	FCharacterChatMessageTableRow(const FCharacterChatMessage& NewCharacterChatMessage);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="TextCommunication | UIChat")
+	FCharacterChatMessage CharacterChatMessage;
+};
+
 UCLASS(Blueprintable, Category="TextCommunication | AbilityPayload")
 class UCharacterChatMessageWrapper : public UObject
 {
 	GENERATED_BODY()
 
-	UCharacterChatMessageWrapper();
+	UCharacterChatMessageWrapper() {}
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="TextCommunication | AbilityPayload")
 	FCharacterChatMessage CharacterChatMessage;
+
+	UFUNCTION(BlueprintCallable, Category="TextCommunication | AbilityPayload")
+	static UCharacterChatMessageWrapper* CreateWrapper(UObject* Outer, const FCharacterChatMessage& Message);
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const FCharacterChatMessage&,
-                                            CharacterChatMessage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const UCharacterChatMessageWrapper*,
+                                            CharacterChatMessageWrapper);
 
 /**
  * 
@@ -50,7 +67,7 @@ public:
 	FOnNewCharacterChatMessage OnNewCharacterChatMessage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="TextCommunication",
-		meta=(RequiredAssetDataTags="RowStructure=/Script/MasterArbeit.FCharacterChatMessage"))
+		meta=(RequiredAssetDataTags="RowStructure=/Script/MasterArbeit.FCharacterChatMessageTableRow"))
 	UDataTable* CharacterChatMessages;
 
 public:
