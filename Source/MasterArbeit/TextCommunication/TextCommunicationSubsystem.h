@@ -28,7 +28,9 @@ struct FCharacterChatMessageTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	FCharacterChatMessageTableRow() {}
+	FCharacterChatMessageTableRow()
+	{
+	}
 
 	FCharacterChatMessageTableRow(const FCharacterChatMessage& NewCharacterChatMessage);
 
@@ -41,11 +43,18 @@ class UCharacterChatMessageWrapper : public UObject
 {
 	GENERATED_BODY()
 
-	UCharacterChatMessageWrapper() {}
+	UCharacterChatMessageWrapper()
+	{
+	}
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="TextCommunication | AbilityPayload")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true, EditCondition="!bIsDelimiter"),
+		Category="TextCommunication | AbilityPayload")
 	FCharacterChatMessage CharacterChatMessage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
+		Category="TextCommunication | AbilityPayload")
+	bool bIsDelimiter = false;
 
 	UFUNCTION(BlueprintCallable, Category="TextCommunication | AbilityPayload")
 	static UCharacterChatMessageWrapper* CreateWrapper(UObject* Outer, const FCharacterChatMessage& Message);
