@@ -8,7 +8,11 @@
 #include "TextCommunicationSubsystem.generated.h"
 
 
-USTRUCT(BlueprintType, Category="TextCommunication | UIChat")
+//CPTVE = ChatPanelTreeView
+// + W  =   + Wrapper
+// + D  =   + Data
+
+USTRUCT(BlueprintType, Category="TextCommunication | UIChat" /*Also used for CPTVED_CharacterSpeech*/)
 struct FCharacterChatMessage
 {
 	GENERATED_BODY()
@@ -38,6 +42,61 @@ struct FCharacterChatMessageTableRow : public FTableRowBase
 	FCharacterChatMessage CharacterChatMessage;
 };
 
+// ------------------------------------ BEGIN ----------------------------------------------------------------------
+// --------------- [OLD] Adaptation for the List / Tree Views :=> UObject <- per -> UWidget architecture -----------
+// --------------------------- Now used as simple wrappers ---------------------------------------------------------
+USTRUCT(BlueprintType, Category="TextCommunication | ChatPanelTreeViewEntry")
+struct FUCPTVED_RoundHeader
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
+		Category="TextCommunication | ChatPanelTreeViewEntry")
+	int32 RoundNumber = -1;
+};
+
+UCLASS(Abstract, Blueprintable, Category="TextCommunication | ChatPanelTreeViewEntry")
+class UCPTVE_Wrapper : public UObject
+{
+	GENERATED_BODY()
+};
+
+UCLASS()
+class UCPTVEW_Delimiter : public UCPTVE_Wrapper
+{
+	GENERATED_BODY()
+};
+
+UCLASS()
+class UCPTVEW_RoundHeader : public UCPTVE_Wrapper
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
+		Category="TextCommunication | ChatPanelTreeViewEntry")
+	FUCPTVED_RoundHeader RoundHeaderData;
+};
+
+//Separation of concerns for now
+UCLASS()
+class UCPTVEW_CharacterSpeech : public UCPTVE_Wrapper
+{
+	GENERATED_BODY()
+
+	UCPTVEW_CharacterSpeech()
+	{
+	}
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
+		Category="TextCommunication | ChatPanelTreeViewEntry")
+	FCharacterChatMessage CharacterChatMessageData;
+};
+// --------------- Adaptation for the List / Tree Views :=> UObject <- per -> UWidget architecture -----------------
+// ------------------------------------ END ------------------------------------------------------------------------
+
+//Separation of concerns for now
 UCLASS(Blueprintable, Category="TextCommunication | AbilityPayload")
 class UCharacterChatMessageWrapper : public UObject
 {
@@ -48,19 +107,15 @@ class UCharacterChatMessageWrapper : public UObject
 	}
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true, EditCondition="!bIsDelimiter"),
-		Category="TextCommunication | AbilityPayload")
-	FCharacterChatMessage CharacterChatMessage;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
 		Category="TextCommunication | AbilityPayload")
-	bool bIsDelimiter = false;
+	FCharacterChatMessage CharacterChatMessage;
 
 	UFUNCTION(BlueprintCallable, Category="TextCommunication | AbilityPayload")
 	static UCharacterChatMessageWrapper* CreateWrapper(UObject* Outer, const FCharacterChatMessage& Message);
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const UCharacterChatMessageWrapper*,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const FCharacterChatMessage&,
                                             CharacterChatMessageWrapper);
 
 /**

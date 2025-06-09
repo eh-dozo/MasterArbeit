@@ -53,6 +53,6 @@ void UTextCommunicationSubsystem::AddCharacterChatMessage(FCharacterChatMessage 
 
 	if (NewCharacterChatMessage != NULL)
 	{
-		OnNewCharacterChatMessage.Broadcast(UCharacterChatMessageWrapper::CreateWrapper(this, *NewCharacterChatMessage));
+		OnNewCharacterChatMessage.Broadcast(*NewCharacterChatMessage);
 	}
 }
