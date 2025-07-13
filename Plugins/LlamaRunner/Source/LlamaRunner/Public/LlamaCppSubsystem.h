@@ -225,7 +225,7 @@ public:
 	void ClearChatHistory();
 
 	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
-	void AddStartChatHistory(const TArray<FChatMessage>& ChatHistory, const FString& SystemPrompt, bool bClearHistoryFirst);
+	void AddChatHistory(const TArray<FChatMessage>& ChatHistory, const FString& SystemPrompt, bool bClearHistoryFirst);
 	
 	UFUNCTION(BlueprintSetter, Category="LlamaRunner")
 	void SetSamplerConfig(FLlamaCppSubsystemSamplerConfig NewConfig);
