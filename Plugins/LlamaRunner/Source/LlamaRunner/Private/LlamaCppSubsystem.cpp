@@ -528,13 +528,13 @@ void ULlamaCppSubsystem::ClearChatHistory()
 	UE_LOG(LogLlamaRunner, Display, TEXT("Chat history has been cleared successfully"));
 }
 
-void ULlamaCppSubsystem::AddStartChatHistory(const TArray<FChatMessage>& ChatHistory,
+void ULlamaCppSubsystem::AddChatHistory(const TArray<FChatMessage>& ChatHistory,
                                              const FString& SystemPrompt,
                                              bool bClearHistoryFirst)
 {
 	if (bIsGenerating)
 	{
-		UE_LOG(LogLlamaRunner, Error, TEXT("Model is still running, aborting clear and add chat history."));
+		UE_LOG(LogLlamaRunner, Error, TEXT("Model is still running, aborting: clear and add chat history."));
 		return;
 	}
 
