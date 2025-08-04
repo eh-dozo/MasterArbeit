@@ -12,7 +12,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogLlamaRunner, Log, All);
 
 bool ULlamaCppSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-	return Super::ShouldCreateSubsystem(Outer);
+	return true;
 }
 
 void ULlamaCppSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -338,6 +338,9 @@ FString ULlamaCppSubsystem::Generate(const FString& Prompt)
 
 	const int MaxNewTokens = 1024;
 	int GeneratedTokens = 0;
+	/*int LastLoggedPercent = -1; // Track the last logged percentage to avoid spam
+
+	UE_LOG(LogLlamaRunner, Display, TEXT("Starting generation: 0%% (0/%d tokens)"), MaxNewTokens);*/
 
 	llama_token NewTokenId = 0;
 	while (GeneratedTokens < MaxNewTokens)
@@ -399,6 +402,19 @@ FString ULlamaCppSubsystem::Generate(const FString& Prompt)
 		}
 
 		GeneratedTokens++;
+
+		// Log generation progress at 10% intervals
+		/*int CurrentPercent = (GeneratedTokens * 100) / MaxNewTokens;
+		if ((CurrentPercent / 10) * 10 != (LastLoggedPercent / 10) * 10 || CurrentPercent == 100)
+		{
+			int PercentToLog = (CurrentPercent / 10) * 10;
+			if (CurrentPercent == 100 || PercentToLog > LastLoggedPercent)
+			{
+				UE_LOG(LogLlamaRunner, Display, TEXT("Generation progress: %d%% (%d/%d tokens)"), 
+					PercentToLog, GeneratedTokens, MaxNewTokens);
+				LastLoggedPercent = PercentToLog;
+			}
+		}*/
 
 		if (GeneratedTokens > 5 && Response.IsEmpty())
 		{

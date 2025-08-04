@@ -23,12 +23,10 @@ public class MasterArbeit : ModuleRules
 			"GameplayTasks",
 			"AIModule",
 			"StateTreeModule",
-			"GameplayStateTreeModule"
-		});
-		
-		PrivateDependencyModuleNames.AddRange(new string[]
-		{
-			
+			"GameplayStateTreeModule",
+			"LlamaRunner",
+			"Json",
+			"JsonUtilities"
 		});
 	}
 }
