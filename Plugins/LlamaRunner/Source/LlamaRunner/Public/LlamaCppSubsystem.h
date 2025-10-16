@@ -7,13 +7,14 @@
 #include "llama-cpp.h"
 //THIRD_PARTY_INCLUDES_END
 #include "CoreMinimal.h"
+#include "LlamaRunnerSettings.h"
 #include "Containers/Map.h"
 #include "Containers/UnrealString.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "LlamaCppSubsystem.generated.h"
 
-UENUM(meta=(ToolTip=
-	"Traditionnal decoding refer to Top-P and Top-K sampling, the other methods are self-explanatory"
+/*UENUM(meta=(ToolTip=
+	"Traditional decoding refer to Top-P and Top-K sampling, the other methods are self-explanatory"
 ))
 enum ELlamaDecodingMethod
 {
@@ -27,7 +28,7 @@ enum ELlamaSamplerMethod
 	Greedy,
 	Dist,
 	Mirostat
-};
+};*/
 
 UENUM(BlueprintType)
 enum EChatRole
@@ -77,7 +78,7 @@ struct FLlamaCppSubsystemSamplerConfig
 	TEnumAsByte<ELlamaSamplerMethod> SamplerMethod = Dist;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="SamplerMethod!=ELlamaSamplerMethod::Mirostat"))
+		EditCondition="SamplerMethod!=Mirostat"))
 	TEnumAsByte<ELlamaDecodingMethod> DecodingMethod = ELlamaDecodingMethod::MinP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
@@ -86,7 +87,7 @@ struct FLlamaCppSubsystemSamplerConfig
 	float Temperature = 0.8f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="DecodingMethod==ELlamaDecodingMethod::MinP && SamplerMethod!=ELlamaSamplerMethod::Mirostat",
+		EditCondition="DecodingMethod==ELlamaDecodingMethod::MinP && SamplerMethod!=Mirostat",
 		ClampMin="0.0",
 		ClampMax="1.0",
 		ToolTip=
@@ -96,7 +97,7 @@ struct FLlamaCppSubsystemSamplerConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
 		EditCondition=
-		"DecodingMethod==ELlamaDecodingMethod::Traditional && SamplerMethod!=ELlamaSamplerMethod::Mirostat",
+		"DecodingMethod==Traditional && SamplerMethod!=Mirostat",
 		ClampMin="0.0",
 		ClampMax="1.0",
 		ToolTip=
@@ -108,12 +109,12 @@ struct FLlamaCppSubsystemSamplerConfig
 		DisplayName="[DEBUG] Use top-k filtering",
 		meta=(
 			EditCondition=
-			"DecodingMethod==ELlamaDecodingMethod::Traditional && SamplerMethod!=ELlamaSamplerMethod::Mirostat"))
+			"DecodingMethod==Traditional && SamplerMethod!=Mirostat"))
 	bool bUseTopKFiltering = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
 		EditCondition=
-		"bUseTopKFiltering && DecodingMethod==ELlamaDecodingMethod::Traditional && SamplerMethod!=ELlamaSamplerMethod::Mirostat"
+		"bUseTopKFiltering && DecodingMethod==Traditional && SamplerMethod!=Mirostat"
 		,
 		ClampMin="0",
 		ClampMax="1000",
@@ -124,7 +125,7 @@ struct FLlamaCppSubsystemSamplerConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
 		EditCondition=
-		"SamplerMethod==ELlamaSamplerMethod::Mirostat",
+		"SamplerMethod==Mirostat",
 		ClampMin="0.1",
 		ClampMax="10",
 		ToolTip=
@@ -134,7 +135,7 @@ struct FLlamaCppSubsystemSamplerConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
 		EditCondition=
-		"SamplerMethod==ELlamaSamplerMethod::Mirostat",
+		"SamplerMethod==Mirostat",
 		ClampMin="0.05",
 		ClampMax="0.2",
 		ToolTip=

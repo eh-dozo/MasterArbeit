@@ -37,7 +37,8 @@ public class LlamaRunner : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
+				"DeveloperSettings"
 			}
 			);
 		
