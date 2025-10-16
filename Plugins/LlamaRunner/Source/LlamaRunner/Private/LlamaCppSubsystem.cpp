@@ -188,7 +188,7 @@ void ULlamaCppSubsystem::AsyncProcessUserPrompt(const FString& UserPrompt, const
 			return;
 		}
 
-		llama_kv_cache_clear(Context.get());
+		llama_memory_clear(llama_get_memory(Context.get()), true);
 
 		if (Sampler.get())
 		{
@@ -198,7 +198,7 @@ void ULlamaCppSubsystem::AsyncProcessUserPrompt(const FString& UserPrompt, const
 		TArray<uint8> Formatted;
 		const int ContextSize = llama_n_ctx(Context.get());
 		Formatted.SetNumUninitialized(ContextSize);
-
+		
 		// TODO: refactor later to allow pre-defined template names
 		// https://github.com/ggml-org/llama.cpp/wiki/Templates-supported-by-llama_chat_apply_template
 		const char* Template = llama_model_chat_template(Model.get(), nullptr);
@@ -244,7 +244,7 @@ void ULlamaCppSubsystem::AsyncProcessUserPrompt(const FString& UserPrompt, const
 		if (Response.IsEmpty())
 		{
 			UE_LOG(LogLlamaRunner, Warning, TEXT("Generated empty response, retrying with clean state"));
-			llama_kv_cache_clear(Context.get());
+			llama_memory_clear(llama_get_memory(Context.get()), true);
 			Response = Generate(Prompt);
 		}
 
@@ -265,7 +265,7 @@ void ULlamaCppSubsystem::AsyncProcessUserPrompt(const FString& UserPrompt, const
 FString ULlamaCppSubsystem::Generate(const FString& Prompt)
 {
 	FString Response;
-	const bool IsFirstGeneration = llama_get_kv_cache_used_cells(Context.get()) == 0;
+	const bool IsFirstGeneration = llama_memory_seq_pos_max(llama_get_memory(Context.get()), 0) == -1;
 
 	const int AmountPromptTokens = -llama_tokenize(
 		Vocab,
@@ -307,7 +307,8 @@ FString ULlamaCppSubsystem::Generate(const FString& Prompt)
 		llama_batch Batch = llama_batch_get_one(PromptTokens.GetData() + TokensProcessed, TokensToProcess);
 
 		int ContextSpace = llama_n_ctx(Context.get());
-		int ContextSpaceUsed = llama_get_kv_cache_used_cells(Context.get());
+		llama_pos MaxPos = llama_memory_seq_pos_max(llama_get_memory(Context.get()), 0);
+		int ContextSpaceUsed = MaxPos == -1 ? 0 : MaxPos + 1;
 
 		if (ContextSpaceUsed + Batch.n_tokens > ContextSpace)
 		{
@@ -346,7 +347,8 @@ FString ULlamaCppSubsystem::Generate(const FString& Prompt)
 	while (GeneratedTokens < MaxNewTokens)
 	{
 		int ContextSpace = llama_n_ctx(Context.get());
-		int ContextSpaceUsed = llama_get_kv_cache_used_cells(Context.get());
+		llama_pos MaxPos = llama_memory_seq_pos_max(llama_get_memory(Context.get()), 0);
+		int ContextSpaceUsed = MaxPos == -1 ? 0 : MaxPos + 1;
 
 		if (ContextSpaceUsed + 1 > ContextSpace)
 		{
@@ -456,7 +458,7 @@ void ULlamaCppSubsystem::ClearChatHistory()
 
 	if (Context.get())
 	{
-		llama_kv_cache_clear(Context.get());
+		llama_memory_clear(llama_get_memory(Context.get()), true);
 
 		llama_context_params ContextParams = llama_context_default_params();
 		ContextParams.n_ctx = CommonConfig.ContextSize;

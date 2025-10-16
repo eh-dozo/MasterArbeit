@@ -16,7 +16,6 @@ public class LlamaCPP : ModuleRules
             PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "Lib", "ggml-base.lib"));
             PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "Lib", "ggml-cpu.lib"));
             PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "Lib", "ggml-cuda.lib"));
-            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "Lib", "llava_shared.lib"));
         }
     }
 }
