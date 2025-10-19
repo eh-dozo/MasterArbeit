@@ -6,7 +6,8 @@
 
 #define LOCTEXT_NAMESPACE "StateTree"
 
-//TODO FOR SOME REASON IT'S CALLED EVERY TICK ? -> FIX
+//TODO Verify if below issue is still active:
+//TODO "FOR SOME REASON IT'S CALLED EVERY TICK ? -> FIX"
 EStateTreeRunStatus FStateTreePromptCharacterTurnReasoningTask::EnterState(
 	FStateTreeExecutionContext& Context,
 	const FStateTreeTransitionResult& Transition) const
@@ -45,14 +46,14 @@ EStateTreeRunStatus FStateTreePromptCharacterTurnReasoningTask::EnterState(
 		{
 			if (ULlamaCppSubsystem* LlamaRunnerSubsystem = Cast<ULlamaCppSubsystem>(Subsystem))
 			{
-				LlamaRunnerSubsystem->AddChatHistory(
+				/*LlamaRunnerSubsystem->AddChatHistory(
 					ChatHistory,
 					InstanceData.SystemPromptDataAsset->SystemPrompt.ToString(),
 					true);
 
 				LlamaRunnerSubsystem->AsyncProcessUserPrompt(
 					LastUserPrompt.Content,
-					"");
+					"");*/
 
 				bFoundAndExecuted = true;
 
