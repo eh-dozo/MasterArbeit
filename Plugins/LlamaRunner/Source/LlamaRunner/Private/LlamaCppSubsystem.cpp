@@ -461,24 +461,6 @@ void FLlamaInferenceThread::LogSamplingAndGenerationPerformances() const
 {
 	const llama_perf_context_data ContextPerf = llama_perf_context(ModelState->Context.get());
 
-	UE_LOG(LogLlamaRunner, Display, TEXT("llama_perf_context_print:        load time = %8.2f ms"),
-	       ContextPerf.t_load_ms);
-	UE_LOG(LogLlamaRunner, Display,
-	       TEXT(
-		       "llama_perf_context_print: prompt eval time = %8.2f ms / %5d tokens (%8.2f ms per token, %8.2f tokens per second)"
-	       ),
-	       ContextPerf.t_p_eval_ms, ContextPerf.n_p_eval, ContextPerf.t_p_eval_ms / ContextPerf.n_p_eval,
-	       1e3 / ContextPerf.t_p_eval_ms * ContextPerf.n_p_eval);
-	UE_LOG(LogLlamaRunner, Display,
-	       TEXT(
-		       "llama_perf_context_print:        eval time = %8.2f ms / %5d runs   (%8.2f ms per token, %8.2f tokens per second)"
-	       ),
-	       ContextPerf.t_eval_ms, ContextPerf.n_eval, ContextPerf.t_eval_ms / ContextPerf.n_eval,
-	       1e3 / ContextPerf.t_eval_ms * ContextPerf.n_eval);
-	UE_LOG(LogLlamaRunner, Display, TEXT("llama_perf_context_print:       total time = %8.2f ms / %5d tokens"),
-	       ContextPerf.t_load_ms + ContextPerf.t_p_eval_ms + ContextPerf.t_eval_ms,
-	       ContextPerf.n_p_eval + ContextPerf.n_eval);
-
 	UE_LOG(LogLlamaRunner, Display, TEXT("--- Sampler Performance ---"));
 	common_perf_print(ModelState->Context.get(), ModelState->CommonSampler);
 }
