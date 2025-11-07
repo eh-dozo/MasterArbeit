@@ -459,8 +459,6 @@ void FLlamaInferenceThread::BindLlamaRunnerLogs()
 
 void FLlamaInferenceThread::LogSamplingAndGenerationPerformances() const
 {
-	const llama_perf_context_data ContextPerf = llama_perf_context(ModelState->Context.get());
-
 	UE_LOG(LogLlamaRunner, Display, TEXT("--- Sampler Performance ---"));
 	common_perf_print(ModelState->Context.get(), ModelState->CommonSampler);
 }
