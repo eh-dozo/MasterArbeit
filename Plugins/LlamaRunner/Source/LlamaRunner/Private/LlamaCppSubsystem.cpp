@@ -11,7 +11,7 @@
 #include "Misc/FileHelper.h"
 #include "Async/Async.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogLlamaRunner, Log, All);
+DEFINE_LOG_CATEGORY(LogLlamaRunner);
 
 FLlamaModelState::FLlamaModelState() : N_Ctx(0)
 {
