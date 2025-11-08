@@ -16,6 +16,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "LlamaCppSubsystem.generated.h"
 
+LLAMARUNNER_API DECLARE_LOG_CATEGORY_EXTERN(LogLlamaRunner, Log, All);
+
 UENUM(BlueprintType)
 enum EChatRole
 {
