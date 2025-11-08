@@ -109,7 +109,8 @@ bool UModelResponseParser::ParseModelResponseFromJson(const FJsonObjectWrapper& 
 {
 	// --- LOGS
 	FString JsonObjectAsString;
-	JsonObjectWrapper.JsonObjectToString(JsonObjectAsString);
+	const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonObjectAsString);
+	FJsonSerializer::Serialize(JsonObjectWrapper.JsonObject.ToSharedRef(), Writer);
 	UE_LOG(LogLlamaRunner, Display, TEXT("%s"), *JsonObjectAsString);
 	// --- END LOGS
 
