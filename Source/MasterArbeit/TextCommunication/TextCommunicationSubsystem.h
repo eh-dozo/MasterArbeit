@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MasterArbeit/MasterArbeitCharacter.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Engine/DeveloperSettings.h"
 #include "TextCommunicationSubsystem.generated.h"
 
 
@@ -94,6 +95,7 @@ public:
 		Category="TextCommunication | ChatPanelTreeViewEntry")
 	FCharacterChatMessage CharacterChatMessageData;
 };
+
 // ------------------------------------ END ------------------------------------------------------------------------
 
 //Separation of concerns for now
@@ -113,6 +115,33 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="TextCommunication | AbilityPayload")
 	static UCharacterChatMessageWrapper* CreateWrapper(UObject* Outer, const FCharacterChatMessage& Message);
+};
+
+UCLASS(Config=Game, ProjectUserConfig, DisplayName="TextCommunication Subsystem Settings")
+class UDSLTextCommunicationSubsystemSettings : public UDeveloperSettings
+{
+	GENERATED_BODY()
+
+public:
+	virtual FName GetCategoryName() const override { return "Project"; }
+	virtual FText GetSectionText() const override { return FText::FromString("TextCommunication Subsystem"); }
+	virtual FText GetSectionDescription() const override
+	{
+		return FText::FromString(
+			"Here to specify which system prompt assets to check to extract pre-written dialogs in the few-shots.");
+	}
+
+	UPROPERTY(Config, EditAnywhere, Category="Few-Shot Extraction",
+		meta=(ToolTip="System Prompt Data Assets whose few-shot chat history will be extracted on game startup"))
+	TArray<TSoftObjectPtr<class USystemPromptDataAsset>> SystemPromptsToExtract;
+
+	UPROPERTY(Config, EditAnywhere, Category="Few-Shot Extraction",
+		meta=(ToolTip="Character name to use for AI character (Assistant role) in few-shot dialogs"))
+	TEnumAsByte<ECharacterGroupName> AldricCharacterName = Green;
+
+	UPROPERTY(Config, EditAnywhere, Category="Few-Shot Extraction",
+		meta=(ToolTip="Character name to use for player/mercenary (User role) in few-shot dialogs"))
+	TEnumAsByte<ECharacterGroupName> MercenaryCharacterName = Player;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const FCharacterChatMessage&,
@@ -138,5 +167,18 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	UFUNCTION(BlueprintCallable, Category="TextCommunication")
-	void AddCharacterChatMessage(FCharacterChatMessage CharacterChatMessage);
+	void AddCharacterChatMessage(FCharacterChatMessage CharacterChatMessage, bool bBroadcast = true);
+
+private:
+	void ExtractFewShotDialogsFromSystemPrompt(const class USystemPromptDataAsset* SystemPromptAsset,
+	                                           TEnumAsByte<ECharacterGroupName> CharacterName,
+	                                           TEnumAsByte<ECharacterGroupName> PlayerName);
+	static FString ExtractDialogFromAssistantMessage(const FString& JsonContent);
+	static FString ExtractDialogFromUserTurnSummary(const FString& TurnSummaryContent);
+
+	bool IsDialogAlreadyInChatMessages(const FString& DialogText) const;
+
+	void AddDialogToChatMessages(const FString& DialogText,
+	                             TEnumAsByte<ECharacterGroupName> CharacterName,
+	                             const FLinearColor& ThemeColor);
 };

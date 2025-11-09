@@ -17,5 +17,9 @@ class MASTERARBEIT_API USystemPromptDataAsset : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(MultiLine))
 	FText SystemPrompt;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Few-Shot Examples",
+		meta=(RequiredAssetDataTags="RowStructure=/Script/LlamaRunner.ChatMessage"))
+	UDataTable* FewShotChatHistory;
 };
 

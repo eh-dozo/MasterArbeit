@@ -8,12 +8,11 @@ public class MasterArbeit : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[]
-		{
+		PublicDependencyModuleNames.AddRange([
 			"Core",
 			"CoreUObject",
-			"Engine", 
-			"InputCore", 
+			"Engine",
+			"InputCore",
 			"NavigationSystem",
 			"Niagara",
 			"EnhancedInput",
@@ -27,6 +26,10 @@ public class MasterArbeit : ModuleRules
 			"LlamaRunner",
 			"Json",
 			"JsonUtilities"
-		});
+		]);
+
+		PrivateDependencyModuleNames.AddRange([
+			"DeveloperSettings"
+		]);
 	}
 }
