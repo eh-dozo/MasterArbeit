@@ -42,9 +42,9 @@ struct FCharacterChatMessageTableRow : public FTableRowBase
 	FCharacterChatMessage CharacterChatMessage;
 };
 
-// ------------------------------------ BEGIN ----------------------------------------------------------------------
-// --------------- [OLD] Adaptation for the List / Tree Views :=> UObject <- per -> UWidget architecture -----------
-// --------------------------- Now used as simple wrappers ---------------------------------------------------------
+
+// ------------------------------------ BEGIN ------------------------------------------------------------------------
+// --------------------------- simple wrappers USED FOR UI -----------------------------------------------------
 USTRUCT(BlueprintType, Category="TextCommunication | ChatPanelTreeViewEntry")
 struct FUCPTVED_RoundHeader
 {
@@ -78,7 +78,8 @@ public:
 	FUCPTVED_RoundHeader RoundHeaderData;
 };
 
-//Separation of concerns for now
+
+//----------- Separation of concerns for now
 UCLASS()
 class UCPTVEW_CharacterSpeech : public UCPTVE_Wrapper
 {
@@ -93,7 +94,6 @@ public:
 		Category="TextCommunication | ChatPanelTreeViewEntry")
 	FCharacterChatMessage CharacterChatMessageData;
 };
-// --------------- Adaptation for the List / Tree Views :=> UObject <- per -> UWidget architecture -----------------
 // ------------------------------------ END ------------------------------------------------------------------------
 
 //Separation of concerns for now
