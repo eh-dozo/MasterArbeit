@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "MasterArbeit/TextCommunication/ModelResponseParser.h"
 #include "UObject/Object.h"
 #include "ActionPayloads.generated.h"
 
@@ -8,6 +9,9 @@ USTRUCT(BlueprintType, Category="LlamaMovement | ActionPayload")
 struct FMovementAction
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString DistanceLiteral = FString();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Distance = 0.0f;
