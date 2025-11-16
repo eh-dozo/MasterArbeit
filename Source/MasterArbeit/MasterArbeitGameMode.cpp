@@ -4,6 +4,7 @@
 #include "MasterArbeitPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/HUD.h"
+#include "TextCommunication/UBPFLChatHistoryHelper.h"
 
 AMasterArbeitGameMode::AMasterArbeitGameMode()
 {
