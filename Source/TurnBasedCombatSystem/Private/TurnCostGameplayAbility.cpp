@@ -44,11 +44,6 @@ void UTurnCostGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 		EffectiveCost = Cost; // fallback to default set in GA_*
 	}
 
-	// Always create and cache spec with SetByCaller for all abilities
-	// This prevents errors when GE has SetByCaller modifiers that need to be set
-
-
-	// CommitAbilityCost now uses our cached spec via overridden CheckCost and ApplyCost
 	if (!CommitAbilityCost(Handle, ActorInfo, ActivationInfo))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Not enough for the Commit cost: %s"), *this->GetName());
@@ -72,7 +67,6 @@ bool UTurnCostGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle
 		const FGameplayEffectSpec* Spec = CachedCostEffectSpec.Data.Get();
 		if (Spec && Spec->Def)
 		{
-			// Check if any modifier uses SetByCaller
 			bool bUsesSetByCaller = false;
 			for (const FGameplayModifierInfo& ModInfo : Spec->Def->Modifiers)
 			{
@@ -84,30 +78,26 @@ bool UTurnCostGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle
 				}
 			}
 
-			// If using SetByCaller, manually check if cost can be afforded
 			if (bUsesSetByCaller)
 			{
 				UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
 				if (ensure(ASC))
 				{
-					// Make a copy and calculate modifier magnitudes to resolve SetByCaller values
+					// Copy of FActiveGameplayEffectsContainer::CanApplyAttributeModifiers
 					FGameplayEffectSpec TempSpec = *Spec;
 					TempSpec.CalculateModifierMagnitudes();
 
-					// Check each modifier (same logic as FActiveGameplayEffectsContainer::CanApplyAttributeModifiers)
 					for (int32 ModIdx = 0; ModIdx < TempSpec.Modifiers.Num(); ++ModIdx)
 					{
 						const FGameplayModifierInfo& ModDef = TempSpec.Def->Modifiers[ModIdx];
 						const FModifierSpec& ModSpec = TempSpec.Modifiers[ModIdx];
 
-						// It only makes sense to check additive operators
 						if (ModDef.ModifierOp == EGameplayModOp::Additive)
 						{
 							if (!ModDef.Attribute.IsValid())
 							{
 								continue;
 							}
-							// Use public API to get current attribute value
 							float CurrentValue = ASC->GetNumericAttribute(ModDef.Attribute);
 							float CostValue = ModSpec.GetEvaluatedMagnitude();
 
@@ -128,7 +118,6 @@ bool UTurnCostGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle
 		}
 	}
 
-	// Fall back to parent implementation if not using SetByCaller or no cached spec
 	return Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags);
 }
 
@@ -141,15 +130,12 @@ void UTurnCostGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle
 		UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
 		if (ASC)
 		{
-			// Apply the cached spec that already has SetByCaller values set
 			ASC->ApplyGameplayEffectSpecToSelf(*CachedCostEffectSpec.Data.Get());
-			// Clear the cache after use
 			CachedCostEffectSpec = FGameplayEffectSpecHandle();
 		}
 	}
 	else
 	{
-		// Fall back to parent implementation if no cached spec
 		Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
 	}
 }
