@@ -51,7 +51,7 @@
 		},
 		{
 			"Name": "BP_MD_LLM",
-			"Enabled": true,
+			"Enabled": false,
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]
