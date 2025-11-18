@@ -19,9 +19,9 @@ void UTurnCostGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
                                                const FGameplayAbilityActivationInfo ActivationInfo,
                                                const FGameplayEventData* TriggerEventData)
 {
+	// [ARCHIVE] -> BP replicate in GA_PlayerMovement
 	// Used for e.g. player movement with dynamic distance range given per magnitude
-	if (TriggerEventData && TriggerEventData->EventMagnitude != 0.f)
-	{
+	/*
 		EffectiveCost = TriggerEventData->EventMagnitude;
 
 		if (const FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(
@@ -38,24 +38,25 @@ void UTurnCostGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 				CachedCostEffectSpec = EffectSpecHandle;
 			}
 		}
-	}
-	else
-	{
-		EffectiveCost = Cost; // fallback to default set in GA_*
-	}
+	*/
 
-	if (!CommitAbilityCost(Handle, ActorInfo, ActivationInfo))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Not enough for the Commit cost: %s"), *this->GetName());
 
-		constexpr bool bReplicateEndAbility = true;
-		constexpr bool bWasCancelled = true;
-		EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	}
+	EffectiveCost = Cost; // fallback to default set in GA_*
 
 	// Only after dynamic cost calculation and cost commit check passed
 	// -> run the blueprint script
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+}
+
+void UTurnCostGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
+                                          const FGameplayAbilityActorInfo* ActorInfo,
+                                          const FGameplayAbilityActivationInfo ActivationInfo,
+                                          bool bReplicateEndAbility,
+                                          bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	OnAbilityEnded.Broadcast();
 }
 
 bool UTurnCostGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle,
