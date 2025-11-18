@@ -6,8 +6,10 @@
 #include "Abilities/GameplayAbility.h"
 #include "TurnCostGameplayAbility.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAbilityEnded);
+
 /**
- * 
+ *
  */
 UCLASS()
 class TURNBASEDCOMBATSYSTEM_API UTurnCostGameplayAbility : public UGameplayAbility
@@ -17,8 +19,12 @@ class TURNBASEDCOMBATSYSTEM_API UTurnCostGameplayAbility : public UGameplayAbili
 	UTurnCostGameplayAbility(const FObjectInitializer& ObjectInitializer);
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Turn Cost Gameplay Ability")
+	FOnAbilityEnded OnAbilityEnded;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Cost;
 
@@ -34,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Turn Cost Gameplay Ability")
 	void SetEffectiveCost(const float NewValue) { EffectiveCost = NewValue; }
+
+	UFUNCTION(BlueprintCallable, Category = "Turn Cost Gameplay Ability")
+	void SetCachedCostEffectSpec(const FGameplayEffectSpecHandle& SpecHandle) { CachedCostEffectSpec = SpecHandle; }
 
 private:
 	mutable FGameplayEffectSpecHandle CachedCostEffectSpec;
