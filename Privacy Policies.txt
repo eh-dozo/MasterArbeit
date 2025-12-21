@@ -1,0 +1,68 @@
+PRIVACY POLICY - Research Study
+
+Study Title: Beyond Scripted Intelligence: Case Study of Transformer Models and Emergent Behaviors in Interactive Virtual Environments
+Institution: Hochschule für Technik und Wirtschaft (HTW) Berlin
+Researcher: Eliot Hoff
+Supervisor: Prof. Dr. Tobias Lenz
+Contact: eliot.hoff@student.htw-berlin.de
+
+RESEARCH FRAMEWORK:
+This research is conducted under the supervision of Prof. Dr. Tobias Lenz in 
+accordance with HTW Berlin's research guidelines and GDPR requirements.
+
+DATA COLLECTION APPROACH:
+This study collects ANONYMOUS data only. No personally identifiable 
+information is collected or stored at any point.
+
+DATA COLLECTED:
+- Anonymous gameplay interactions and decisions
+- Anonymous conversations with AI agents (names/identifiers written by participants in a conversation will be anonymized)
+- Anonymous questionnaire responses
+- Session metadata (duration, timestamps - not linked to participant's session ID)
+
+ANONYMIZATION PROCESS:
+- Participants receive random session IDs
+- No connection between session IDs and participant identity
+- No IP addresses, device IDs, or browser fingerprints collected
+- Questionnaire responses collected without identifying information
+
+DATA STORAGE & SECURITY:
+- All data stored locally
+- No cloud storage or external transmission
+- Access restricted to researcher and thesis supervisor
+
+DATA RETENTION:
+- Anonymous data retained for thesis duration
+- Deletion after thesis defense
+
+PARTICIPANT RIGHTS:
+Since data is collected anonymously, individual data cannot be:
+- Accessed by specific participant
+- Modified for specific participant  
+- Deleted for specific participant
+(We cannot identify which data belongs to which participant)
+
+VOLUNTARY PARTICIPATION:
+- Participation is entirely voluntary
+- You may stop participating at any time
+- Once submitted, anonymous data cannot be withdrawn (we cannot identify it)
+
+DATA PROTECTION CONTACT:
+HTW Berlin Data Protection Officer
+Email: datenschutz@htw-berlin.de
+Phone: 030-5019-2950
+
+LEGAL BASIS:
+Anonymous data collection under:
+- HTW Berlin research guidelines
+- GDPR principles (data minimization, purpose limitation)
+- Supervised by Prof. Dr. Tobias Lenz (FB4)
+
+CONSENT:
+By participating, you acknowledge:
+- This information has been provided to you
+- Data collection is fully anonymous
+- You participate voluntarily
+- You are 18 years or older
+
+Last Updated: 12/21/2025

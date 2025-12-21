@@ -124,12 +124,14 @@ class UDSLTextCommunicationSubsystemSettings : public UDeveloperSettings
 
 public:
 	virtual FName GetCategoryName() const override { return "Project"; }
+#if WITH_EDITOR
 	virtual FText GetSectionText() const override { return FText::FromString("TextCommunication Subsystem"); }
 	virtual FText GetSectionDescription() const override
 	{
 		return FText::FromString(
 			"Here to specify which system prompt assets to check to extract pre-written dialogs in the few-shots.");
 	}
+#endif
 
 	UPROPERTY(Config, EditAnywhere, Category="Few-Shot Extraction",
 		meta=(ToolTip="System Prompt Data Assets whose few-shot chat history will be extracted on game startup"))

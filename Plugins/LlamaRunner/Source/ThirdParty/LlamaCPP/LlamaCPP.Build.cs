@@ -19,20 +19,23 @@ public class LlamaCPP : ModuleRules
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             PublicDelayLoadDLLs.AddRange([
+                Path.Combine(BinaryPath, "llama.dll"),
                 Path.Combine(BinaryPath, "ggml.dll"),
                 Path.Combine(BinaryPath, "ggml-base.dll"),
                 Path.Combine(BinaryPath, "ggml-cpu.dll"),
                 Path.Combine(BinaryPath, "ggml-cuda.dll"),
-                Path.Combine(BinaryPath, "llama.dll")
+                Path.Combine(BinaryPath, "cudart64_12.dll"),
+                Path.Combine(BinaryPath, "cublas64_12.dll"),
+                Path.Combine(BinaryPath, "cublasLt64_12.dll")
             ]);
             
             PublicAdditionalLibraries.AddRange([
+                Path.Combine(LibraryPath, "llama.lib"),
+                Path.Combine(LibraryPath, "common.lib"),
                 Path.Combine(LibraryPath, "ggml.lib"),
                 Path.Combine(LibraryPath, "ggml-base.lib"),
                 Path.Combine(LibraryPath, "ggml-cpu.lib"),
-                Path.Combine(LibraryPath, "ggml-cuda.lib"),
-                Path.Combine(LibraryPath, "llama.lib"),
-                Path.Combine(LibraryPath, "common.lib")
+                Path.Combine(LibraryPath, "ggml-cuda.lib")
             ]);
             
             if (Target.bBuildEditor)
@@ -45,11 +48,14 @@ public class LlamaCPP : ModuleRules
                         StagedFileType.SystemNonUFS);
                 }
                 
+                AddRuntimeDependencyEditorBuild("llama");
                 AddRuntimeDependencyEditorBuild("ggml");
                 AddRuntimeDependencyEditorBuild("ggml-base");
                 AddRuntimeDependencyEditorBuild("ggml-cpu");
                 AddRuntimeDependencyEditorBuild("ggml-cuda");
-                AddRuntimeDependencyEditorBuild("llama");
+                AddRuntimeDependencyEditorBuild("cudart64_12");
+                AddRuntimeDependencyEditorBuild("cublas64_12");
+                AddRuntimeDependencyEditorBuild("cublasLt64_12");
             }
             else
             {
@@ -61,11 +67,14 @@ public class LlamaCPP : ModuleRules
                         StagedFileType.SystemNonUFS);
                 }
                 
+                AddRuntimeDependencyPackage("llama");
                 AddRuntimeDependencyPackage("ggml");
                 AddRuntimeDependencyPackage("ggml-base");
                 AddRuntimeDependencyPackage("ggml-cpu");
                 AddRuntimeDependencyPackage("ggml-cuda");
-                AddRuntimeDependencyPackage("llama");
+                AddRuntimeDependencyPackage("cudart64_12");
+                AddRuntimeDependencyPackage("cublas64_12");
+                AddRuntimeDependencyPackage("cublasLt64_12");
             }
         }
         
