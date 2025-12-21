@@ -62,9 +62,11 @@ class LLAMARUNNER_API UDSLlamaRunnerSettings : public UDeveloperSettings
 
 public:
 	virtual FName GetCategoryName() const override { return "Plugins"; }
+#if WITH_EDITOR
 	virtual FText GetSectionText() const override { return FText::FromString("Llama Runner"); }
 	virtual FText GetSectionDescription() const override { return FText::FromString("The model path MUST be specified or the plugin won't work.\nAll the other settings can be left to default if nothing specific is required to use the plugin."); }
-
+#endif
+	
 	/*
 	 * ----------------------------------------------------------|
 	 *						GENERAL SETTINGS					 *
