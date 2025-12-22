@@ -10,6 +10,9 @@
 #include "sampling.h"
 #include "Misc/FileHelper.h"
 #include "Async/Async.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Misc/Paths.h"
 
 DEFINE_LOG_CATEGORY(LogLlamaRunner);
 
@@ -27,9 +30,51 @@ FLlamaModelState::~FLlamaModelState()
 void FLlamaModelState::InitializeCommonParams()
 {
 	CommonParams = new common_params();
-	CommonParams->model.path = TCHAR_TO_UTF8(*GeneralSettings->ModelPath.FilePath);
 
-	CommonParams->n_ctx = GeneralSettings->ContextSize;
+	// Check for command-line provided model path (if running the game from terminal)
+	FString ModelPath;
+	FString CommandLineModelPath;
+	if (FParse::Value(FCommandLine::Get(), TEXT("ModelPath="), CommandLineModelPath))
+	{
+		if (FPaths::IsRelative(CommandLineModelPath))
+		{
+			ModelPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir(), CommandLineModelPath);
+
+			if (!FPaths::FileExists(ModelPath))
+			{
+				ModelPath = FPaths::ConvertRelativePathToFull(FPaths::LaunchDir(), CommandLineModelPath);
+			}
+		}
+		else
+		{
+			ModelPath = CommandLineModelPath;
+		}
+
+		UE_LOG(LogLlamaRunner, Display, TEXT("Using model path from command-line: %s"), *ModelPath);
+	}
+	else
+	{
+		ModelPath = GeneralSettings->ModelPath.FilePath;
+		UE_LOG(LogLlamaRunner, Display, TEXT("Using model path from project settings: %s"), *ModelPath);
+	}
+
+	CommonParams->model.path = TCHAR_TO_UTF8(*ModelPath);
+
+	// Check for command-line override of context size
+	int32 ContextSize;
+	FString CommandLineContextSize;
+	if (FParse::Value(FCommandLine::Get(), TEXT("ContextSize="), CommandLineContextSize))
+	{
+		ContextSize = FCString::Atoi(*CommandLineContextSize);
+		UE_LOG(LogLlamaRunner, Display, TEXT("Using context size from command-line: %d"), ContextSize);
+	}
+	else
+	{
+		ContextSize = GeneralSettings->ContextSize;
+		UE_LOG(LogLlamaRunner, Display, TEXT("Using context size from project settings: %d"), ContextSize);
+	}
+
+	CommonParams->n_ctx = ContextSize;
 	CommonParams->n_batch = GeneralSettings->Batches;
 	CommonParams->n_ubatch = FMath::Min(1024, GeneralSettings->Batches / 4);
 	CommonParams->n_gpu_layers = -1; //GeneralSettings->GraphicalLayers; used with Llama.cpp
@@ -93,19 +138,49 @@ common_params_sampling FLlamaModelState::InitializeSamplerParams() const
 		Params->mirostat = 0;
 	}
 
-	// grammar
-	if (FString GrammarContent; !GeneralSettings->GrammarPath.FilePath.IsEmpty() &&
-		FFileHelper::LoadFileToString(GrammarContent, *GeneralSettings->GrammarPath.FilePath))
+	// Check for command-line provided grammar path (if running the game from terminal)
+
+	FString GrammarPath;
+	FString CommandLineGrammarPath;
+	if (FParse::Value(FCommandLine::Get(), TEXT("GrammarPath="), CommandLineGrammarPath))
+	{
+		if (FPaths::IsRelative(CommandLineGrammarPath))
+		{
+			GrammarPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir(), CommandLineGrammarPath);
+
+			if (!FPaths::FileExists(GrammarPath))
+			{
+				GrammarPath = FPaths::ConvertRelativePathToFull(FPaths::LaunchDir(), CommandLineGrammarPath);
+			}
+		}
+		else
+		{
+			GrammarPath = CommandLineGrammarPath;
+		}
+
+		UE_LOG(LogLlamaRunner, Display, TEXT("Using grammar path from command-line: %s"), *GrammarPath);
+	}
+	else
+	{
+		GrammarPath = GeneralSettings->GrammarPath.FilePath;
+		if (!GrammarPath.IsEmpty())
+		{
+			UE_LOG(LogLlamaRunner, Display, TEXT("Using grammar path from project settings: %s"), *GrammarPath);
+		}
+	}
+
+	if (FString GrammarContent; !GrammarPath.IsEmpty() &&
+		FFileHelper::LoadFileToString(GrammarContent, *GrammarPath))
 	{
 		// Convert FString to std::string for grammar
 		const std::string GrammarStr = TCHAR_TO_UTF8(*GrammarContent);
 		Params->grammar = GrammarStr;
-		UE_LOG(LogLlamaRunner, Display, TEXT("Loaded grammar from: %s"), *GeneralSettings->GrammarPath.FilePath);
+		UE_LOG(LogLlamaRunner, Display, TEXT("Loaded grammar from: %s"), *GrammarPath);
 	}
-	else if (!GeneralSettings->GrammarPath.FilePath.IsEmpty())
+	else if (!GrammarPath.IsEmpty())
 	{
 		UE_LOG(LogLlamaRunner, Warning, TEXT("Failed to load grammar file: %s"),
-		       *GeneralSettings->GrammarPath.FilePath);
+		       *GrammarPath);
 	}
 
 	return *Params;
