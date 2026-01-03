@@ -71,9 +71,20 @@ public:
 	void Shutdown();
 	
 	bool IsValid() const { return Model && Context && CommonSampler; }
-	FString Generate() const;
+
+	// Callback signature for context warnings during generation
+	using FContextWarningCallback = TFunction<void(int32 TokensUsed, int32 TokensTotal, float UsagePercent)>;
+
+	FString Generate(const FContextWarningCallback& WarningCallback = nullptr) const;
 	void ClearCache();
 	void ResetSampler() const;
+
+	// Context monitoring functions
+	int32 GetContextTokensUsed() const;
+	int32 GetContextTokensTotal() const { return N_Ctx; }
+	int32 GetContextTokensRemaining() const;
+	float GetContextUsagePercent() const;
+	bool CanFitTokens(int32 TokenCount, int32 MinGenerationBuffer = 512) const;
 
 	void ClearMessages() const { CommonMessages->clear(); }
 	void AddChatAndFormat(EChatRole Role, const FString& Content) const;
@@ -150,6 +161,20 @@ private:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInferenceCompleteDelegate, const FString&, Response);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnContextWarningDelegate,
+	int32, TokensUsed,
+	int32, TokensTotal,
+	float, UsagePercent
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnContextErrorDelegate,
+	int32, TokensUsed,
+	int32, TokensTotal,
+	int32, TokensRemaining
+);
+
 /**
  * 
  */
@@ -164,6 +189,12 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
 	FOnInferenceCompleteDelegate OnInferenceComplete;
+
+	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
+	FOnContextWarningDelegate OnContextWarning;
+
+	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
+	FOnContextErrorDelegate OnContextError;
 
 private:
 	llama_model_ptr Model;

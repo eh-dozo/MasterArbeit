@@ -299,11 +299,18 @@ void FLlamaModelState::Shutdown()
 
 //TODO: should we use string_process_escapes at some point?
 //TODO: miss SessionTokens impl.
-FString FLlamaModelState::Generate() const
+FString FLlamaModelState::Generate(const FContextWarningCallback& WarningCallback) const
 {
 	UE_LOG(LogLlamaRunner, Verbose, TEXT("Generate(): Begin"));
 
 	FString Response;
+
+	const int32 CurrentTokensUsed = GetContextTokensUsed();
+	const float CurrentUsagePercent = GetContextUsagePercent();
+
+	UE_LOG(LogLlamaRunner, Display,
+		TEXT("Context usage before generation: %d/%d tokens (%.1f%%)"),
+		CurrentTokensUsed, N_Ctx, CurrentUsagePercent);
 
 	// Tokenize the conversation
 	std::vector<llama_token> EmbeddedInput;
@@ -344,6 +351,39 @@ FString FLlamaModelState::Generate() const
 
 			UE_LOG(LogLlamaRunner, Display, TEXT("Tokenized %d messages into %d tokens"),
 			       static_cast<int>(CommonMessages->size()), static_cast<int>(EmbeddedInput.size()));
+
+			// Check if prompt + minimum generation buffer can fit
+			// 256 fits the current grammar max length and 512 would be leaving ~55% more 
+			// if we know what to increase the grammar length (i.e. reasoning or verbal-interaction)
+			if (constexpr int32 MinGenerationBuffer = 256; 
+				!CanFitTokens(static_cast<int32>(EmbeddedInput.size()), MinGenerationBuffer))
+			{
+				const int32 TokensNeeded = static_cast<int32>(EmbeddedInput.size()) + MinGenerationBuffer;
+				const int32 TokensAvailable = GetContextTokensRemaining();
+
+				UE_LOG(LogLlamaRunner, Error,
+					TEXT("Context overflow: Need %d tokens (%d prompt + %d buffer), but only %d available"),
+					TokensNeeded, static_cast<int32>(EmbeddedInput.size()), MinGenerationBuffer, TokensAvailable);
+
+				return Response; // empty response
+			}
+
+			// Check if usage will exceed 80% after processing this prompt
+			const int32 TokensAfterPrompt = CurrentTokensUsed + static_cast<int32>(EmbeddedInput.size());
+			const float UsageAfterPrompt = (static_cast<float>(TokensAfterPrompt) / static_cast<float>(N_Ctx)) * 100.0f;
+
+			if (UsageAfterPrompt >= 80.0f)
+			{
+				UE_LOG(LogLlamaRunner, Warning,
+					TEXT("Context usage warning: %.1f%% after adding prompt (%d/%d tokens)"),
+					UsageAfterPrompt, TokensAfterPrompt, N_Ctx);
+
+				// Broadcast warning via callback if provided
+				if (WarningCallback)
+				{
+					WarningCallback(TokensAfterPrompt, N_Ctx, UsageAfterPrompt);
+				}
+			}
 		}
 		else
 		{
@@ -454,6 +494,54 @@ void FLlamaModelState::ResetSampler() const
 		common_sampler_reset(CommonSampler);
 		UE_LOG(LogLlamaRunner, Display, TEXT("Sampler reset"));
 	}
+}
+
+int32 FLlamaModelState::GetContextTokensUsed() const
+{
+	if (!Context)
+	{
+		return 0;
+	}
+
+	// Get the position range in the KV cache for default sequence (id 0)
+	const llama_memory_t Memory = llama_get_memory(Context.get());
+	const llama_pos MaxPos = llama_memory_seq_pos_max(Memory, 0);
+
+	if (MaxPos < 0)
+	{
+		return 0;
+	}
+
+	// https://github.com/ggml-org/llama.cpp/pull/13194
+	// For Sliding Window Attention (SWA) caches, positions may not start at 0
+	// Get the minimum position to calculate accurate token count
+	const llama_pos MinPos = llama_memory_seq_pos_min(Memory, 0);
+	if (MinPos < 0)
+	{
+		return 0;  // Defensive: shouldn't happen if MaxPos >= 0
+	}
+
+	return MaxPos - MinPos + 1;
+}
+
+int32 FLlamaModelState::GetContextTokensRemaining() const
+{
+	return N_Ctx - GetContextTokensUsed();
+}
+
+float FLlamaModelState::GetContextUsagePercent() const
+{
+	if (N_Ctx <= 0)
+	{
+		return 0.0f;
+	}
+	return (static_cast<float>(GetContextTokensUsed()) / static_cast<float>(N_Ctx)) * 100.0f;
+}
+
+bool FLlamaModelState::CanFitTokens(const int32 TokenCount, const int32 MinGenerationBuffer) const
+{
+	const int32 Remaining = GetContextTokensRemaining();
+	return Remaining >= (TokenCount + MinGenerationBuffer);
 }
 
 void FLlamaModelState::AddChatAndFormat(const EChatRole Role, const FString& Content) const
@@ -643,7 +731,20 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 
 	ModelState->AddChatAndFormat(User, Command.UserPrompt);
 
-	if (FString Response = ModelState->Generate(); !Response.IsEmpty())
+	auto WarningCallback = [Owner = Owner](int32 TokensUsed, int32 TokensTotal, float UsagePercent)
+	{
+		AsyncTask(ENamedThreads::GameThread,
+			[Owner, TokensUsed, TokensTotal, UsagePercent]
+			{
+				if (Owner)
+				{
+					Owner->OnContextWarning.Broadcast(TokensUsed, TokensTotal, UsagePercent);
+				}
+			});
+	};
+
+	if (FString Response = ModelState->Generate(WarningCallback); 
+		!Response.IsEmpty())
 	{
 		ModelState->AddChatAndFormat(Assistant, Response);
 
@@ -659,7 +760,26 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 	}
 	else
 	{
-		UE_LOG(LogLlamaRunner, Warning, TEXT("Empty response generated"));
+		// Empty response indicates context overflow or generation failure
+		const int32 TokensUsed = ModelState->GetContextTokensUsed();
+		const int32 TokensTotal = ModelState->GetContextTokensTotal();
+		const int32 TokensRemaining = ModelState->GetContextTokensRemaining();
+
+		FString ErrorMsg = FString::Printf(
+			TEXT("Generation failed - likely context overflow. Tokens: %d/%d (remaining: %d)"),
+			TokensUsed, TokensTotal, TokensRemaining);
+
+		UE_LOG(LogLlamaRunner, Error, TEXT("%s"), *ErrorMsg);
+
+		// Always broadcast error when generation fails
+		AsyncTask(ENamedThreads::GameThread,
+			[Owner = Owner, TokensUsed, TokensTotal, TokensRemaining]
+			{
+				if (Owner)
+				{
+					Owner->OnContextError.Broadcast(TokensUsed, TokensTotal, TokensRemaining);
+				}
+			});
 	}
 }
 
