@@ -4,6 +4,9 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayAbilitySpec.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+#include "LlamaRunner/Public/LlamaRunnerSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogChatHistoryHelper, Log, All);
 
@@ -252,7 +255,7 @@ bool UUBPFLChatHistoryHelper::ProcessRoundEndForCharacter(
 }
 
 bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHistoryTable, const int32 NumRowsToKeep, const FString& FewShotsRowNamePrefix,
-                                                           const bool bMarkDirty)
+                                                           const bool bMarkDirty, const bool bExportBeforeClearing)
 {
 	if (!ChatHistoryTable)
 	{
@@ -265,6 +268,30 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 		UE_LOG(LogChatHistoryHelper, Error,
 		       TEXT("ClearChatHistoryKeepFewShots: DataTable is not of type FChatMessage"));
 		return false;
+	}
+
+	// Export before clearing if requested
+	if (bExportBeforeClearing)
+	{
+		// Extract character name from data table asset name
+		FString CharacterName = TEXT("Unknown");
+		const FString AssetName = ChatHistoryTable->GetName();
+		if (AssetName.StartsWith(TEXT("DT_")))
+		{
+			const FString Remainder = AssetName.RightChop(3); // Remove "DT_"
+			int32 UnderscoreIndex;
+			if (Remainder.FindChar(TEXT('_'), UnderscoreIndex))
+			{
+				CharacterName = Remainder.Left(UnderscoreIndex);
+			}
+		}
+
+		const bool bExportSuccess = ExportChatHistoryToCSV(ChatHistoryTable, CharacterName);
+		if (!bExportSuccess)
+		{
+			UE_LOG(LogChatHistoryHelper, Warning,
+			       TEXT("ClearChatHistoryKeepFewShots: CSV export failed, but continuing with clear operation"));
+		}
 	}
 
 	TArray<FName> AllRowNames = ChatHistoryTable->GetRowNames();
@@ -303,5 +330,89 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 	       TEXT("ClearChatHistoryKeepFewShots: Removed %d runtime message rows, kept %d rows (MarkDirty: %s)"),
 	       NumRowsRemoved, AllRowNames.Num() - NumRowsRemoved, bMarkDirty ? TEXT("true") : TEXT("false"));
 
+	return true;
+}
+
+bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTable, const FString& CharacterName)
+{
+	if (!ChatHistoryTable)
+	{
+		UE_LOG(LogChatHistoryHelper, Error, TEXT("ExportChatHistoryToCSV: ChatHistoryTable is null"));
+		return false;
+	}
+
+	if (ChatHistoryTable->GetRowStruct() != FChatMessage::StaticStruct())
+	{
+		UE_LOG(LogChatHistoryHelper, Error, TEXT("ExportChatHistoryToCSV: DataTable is not of type FChatMessage"));
+		return false;
+	}
+
+	const TArray<FName> RowNames = ChatHistoryTable->GetRowNames();
+	if (RowNames.Num() == 0)
+	{
+		UE_LOG(LogChatHistoryHelper, Warning, TEXT("ExportChatHistoryToCSV: DataTable is empty, nothing to export"));
+		return true;
+	}
+
+	FString FinalCharacterName = CharacterName;
+	if (FinalCharacterName.IsEmpty() || FinalCharacterName == TEXT("Unknown"))
+	{
+		const FString AssetName = ChatHistoryTable->GetName();
+		if (AssetName.StartsWith(TEXT("DT_")))
+		{
+			const FString Remainder = AssetName.RightChop(3);
+			int32 UnderscoreIndex;
+			if (Remainder.FindChar(TEXT('_'), UnderscoreIndex))
+			{
+				FinalCharacterName = Remainder.Left(UnderscoreIndex);
+			}
+		}
+	}
+
+	FString ModelName = TEXT("UnknownModel");
+	const UDSLlamaRunnerSettings* Settings = GetDefault<UDSLlamaRunnerSettings>();
+	if (Settings && !Settings->ModelPath.FilePath.IsEmpty())
+	{
+		ModelName = FPaths::GetBaseFilename(Settings->ModelPath.FilePath);
+	}
+
+	const FDateTime Now = FDateTime::Now();
+	const FString Timestamp = FString::Printf(TEXT("%04d%02d%02d_%02d%02d%02d"),
+	                                    Now.GetYear(), Now.GetMonth(), Now.GetDay(),
+	                                    Now.GetHour(), Now.GetMinute(), Now.GetSecond());
+
+	FString Filename = FString::Printf(TEXT("%s_%s_%s.csv"),
+	                                   *FinalCharacterName, *Timestamp, *ModelName);
+
+	FString ExportDirectory;
+#if WITH_EDITOR
+	ExportDirectory = FPaths::ProjectDir();
+#else
+	ExportDirectory = FPaths::LaunchDir();
+#endif
+
+	const FString FullPath = FPaths::Combine(ExportDirectory, "Turn-Logs", Filename);
+
+	if (const FString DirectoryPath = FPaths::GetPath(FullPath);
+		!FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*DirectoryPath))
+	{
+		UE_LOG(LogChatHistoryHelper, Error,
+			   TEXT("ExportChatHistoryToCSV: Failed to create directory %s"), *DirectoryPath);
+		return false;
+	}
+
+	const FString CsvContent = ChatHistoryTable->GetTableAsCSV();
+
+	if (!FFileHelper::SaveStringToFile(CsvContent, *FullPath,
+	                                    FFileHelper::EEncodingOptions::AutoDetect))
+	{
+		UE_LOG(LogChatHistoryHelper, Error,
+		       TEXT("ExportChatHistoryToCSV: Failed to write CSV file to %s"), *FullPath);
+		return false;
+	}
+
+	UE_LOG(LogChatHistoryHelper, Log,
+	       TEXT("ExportChatHistoryToCSV: Successfully exported %d rows to %s"),
+	       RowNames.Num(), *FullPath);
 	return true;
 }

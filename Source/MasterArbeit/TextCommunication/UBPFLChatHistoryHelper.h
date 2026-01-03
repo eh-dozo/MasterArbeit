@@ -42,11 +42,17 @@ public:
 		const FTurnActionData& PreviousTurnData
 	);
 
-	UFUNCTION(BlueprintCallable, Category = "Chat History", meta = (AdvancedDisplay = "NumRowsToKeep, bMarkDirty"))
+	UFUNCTION(BlueprintCallable, Category = "Chat History", meta = (AdvancedDisplay = "NumRowsToKeep, bMarkDirty, bExportBeforeClearing"))
 	static bool ClearChatHistoryKeepFewShots(UDataTable* ChatHistoryTable,
 	                                         const int32 NumRowsToKeep = 3,
 	                                         const FString& FewShotsRowNamePrefix = FString("FewShot_"),
-	                                         const bool bMarkDirty = false);
+	                                         const bool bMarkDirty = false,
+	                                         const bool bExportBeforeClearing = true);
+
+	UFUNCTION(BlueprintCallable, Category = "Chat History")
+	static bool ExportChatHistoryToCSV(
+		UDataTable* ChatHistoryTable,
+		const FString& CharacterName = FString("Unknown"));
 
 private:
 	static FString GetCharacterNameString(ECharacterGroupName CharacterName);
