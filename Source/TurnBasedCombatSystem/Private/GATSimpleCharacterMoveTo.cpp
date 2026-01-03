@@ -30,7 +30,7 @@ void UGATSimpleCharacterMoveTo::Activate()
 		this,
 		&UGATSimpleCharacterMoveTo::OnPathComponentRequestFinishedCallback);
 
-	OwningController->MoveToLocation(TargetLocation, 50, true, true, true);
+	OwningController->MoveToLocation(TargetLocation, 0, true, true, true);
 }
 
 UGATSimpleCharacterMoveTo* UGATSimpleCharacterMoveTo::WaitForCharacterMovementToComplete(
