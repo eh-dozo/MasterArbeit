@@ -7,6 +7,8 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "LlamaRunner/Public/LlamaRunnerSettings.h"
+#include "MasterArbeit/MasterArbeitGameInstance.h"
+#include "Engine/Engine.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogChatHistoryHelper, Log, All);
 
@@ -202,7 +204,7 @@ bool UUBPFLChatHistoryHelper::AddAssistantResponseToHistory(UDataTable* ChatHist
 		return false;
 	}
 
-	const bool bSuccess = AddRowToChatHistory(ChatHistoryTable, EChatRole::Assistant, RawJsonResponse);
+	const bool bSuccess = AddRowToChatHistory(ChatHistoryTable, Assistant, RawJsonResponse);
 
 	if (bSuccess)
 	{
@@ -238,7 +240,7 @@ bool UUBPFLChatHistoryHelper::ProcessRoundEndForCharacter(
 		return false;
 	}
 
-	const bool bSuccess = AddRowToChatHistory(ChatHistoryTable, EChatRole::User, TurnSummary);
+	const bool bSuccess = AddRowToChatHistory(ChatHistoryTable, User, TurnSummary);
 
 	if (bSuccess)
 	{
@@ -370,28 +372,37 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 	}
 
 	FString ModelName = TEXT("UnknownModel");
-	const UDSLlamaRunnerSettings* Settings = GetDefault<UDSLlamaRunnerSettings>();
-	if (Settings && !Settings->ModelPath.FilePath.IsEmpty())
+	if (const UDSLlamaRunnerSettings* Settings = GetDefault<UDSLlamaRunnerSettings>();
+		Settings && !Settings->ModelPath.FilePath.IsEmpty())
 	{
 		ModelName = FPaths::GetBaseFilename(Settings->ModelPath.FilePath);
 	}
 
 	const FDateTime Now = FDateTime::Now();
-	const FString Timestamp = FString::Printf(TEXT("%04d%02d%02d_%02d%02d%02d"),
+	const FString Timestamp = FString::Printf(TEXT("%04d-%02d-%02d_%02d-%02d-%02d"),
 	                                    Now.GetYear(), Now.GetMonth(), Now.GetDay(),
 	                                    Now.GetHour(), Now.GetMinute(), Now.GetSecond());
 
-	FString Filename = FString::Printf(TEXT("%s_%s_%s.csv"),
-	                                   *FinalCharacterName, *Timestamp, *ModelName);
+	// Get participant ID from game instance
+	FString ParticipantID = TEXT("NoParticipant");
+	if (GEngine)
+	{
+		if (const UWorld* World = GEngine->GetCurrentPlayWorld())
+		{
+			if (const UMasterArbeitGameInstance* GameInstance = World->GetGameInstance<UMasterArbeitGameInstance>())
+			{
+				if (GameInstance->HasParticipantID())
+				{
+					ParticipantID = GameInstance->GetParticipantID();
+				}
+			}
+		}
+	}
 
-	FString ExportDirectory;
-#if WITH_EDITOR
-	ExportDirectory = FPaths::ProjectDir();
-#else
-	ExportDirectory = FPaths::LaunchDir();
-#endif
+	FString Filename = FString::Printf(TEXT("%s_%s_%s_%s.csv"),
+	                                   *ParticipantID, *FinalCharacterName, *Timestamp, *ModelName);
 
-	const FString FullPath = FPaths::Combine(ExportDirectory, "Turn-Logs", Filename);
+	const FString FullPath = FPaths::Combine(FPaths::ProjectDir(), "Turn-Logs", Filename);
 
 	if (const FString DirectoryPath = FPaths::GetPath(FullPath);
 		!FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*DirectoryPath))
@@ -401,7 +412,30 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 		return false;
 	}
 
-	const FString CsvContent = ChatHistoryTable->GetTableAsCSV();
+	FString CsvContent = TEXT("Name,ChatRole,Content\n");
+
+	for (const FName& RowName : RowNames)
+	{
+		const FChatMessage* Row = ChatHistoryTable->FindRow<FChatMessage>(RowName, TEXT("ExportChatHistory"));
+		if (Row)
+		{
+			FString EscapedContent = Row->Content.Replace(TEXT("\""), TEXT("\"\""));
+
+			FString RoleString;
+			switch (Row->ChatRole)
+			{
+				case System: RoleString = TEXT("System"); break;
+				case User: RoleString = TEXT("User"); break;
+				case Assistant: RoleString = TEXT("Assistant"); break;
+				default: RoleString = TEXT("Unknown"); break;
+			}
+
+			CsvContent += FString::Printf(TEXT("%s,%s,\"%s\"\n"),
+				*RowName.ToString(),
+				*RoleString,
+				*EscapedContent);
+		}
+	}
 
 	if (!FFileHelper::SaveStringToFile(CsvContent, *FullPath,
 	                                    FFileHelper::EEncodingOptions::AutoDetect))
