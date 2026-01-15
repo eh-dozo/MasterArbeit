@@ -16,6 +16,41 @@
 
 DEFINE_LOG_CATEGORY(LogLlamaRunner);
 
+namespace
+{
+	FString ResolvePathPlaceholders(const FString& InPath)
+	{
+		if (InPath.IsEmpty())
+		{
+			return InPath;
+		}
+
+		FString ResolvedPath = InPath;
+
+		const FString AbsProjectDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
+		const FString AbsEngineDir = FPaths::ConvertRelativePathToFull(FPaths::EngineDir());
+		const FString AbsLaunchDir = FPaths::ConvertRelativePathToFull(FPaths::LaunchDir());
+		const FString AbsContentDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir());
+		const FString AbsSavedDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir());
+
+		ResolvedPath = ResolvedPath.Replace(TEXT("{ProjectDir}"), *AbsProjectDir);
+		ResolvedPath = ResolvedPath.Replace(TEXT("{EngineDir}"), *AbsEngineDir);
+		ResolvedPath = ResolvedPath.Replace(TEXT("{LaunchDir}"), *AbsLaunchDir);
+		ResolvedPath = ResolvedPath.Replace(TEXT("{ProjectContentDir}"), *AbsContentDir);
+		ResolvedPath = ResolvedPath.Replace(TEXT("{ProjectSavedDir}"), *AbsSavedDir);
+
+		FPaths::NormalizeFilename(ResolvedPath);
+		FPaths::CollapseRelativeDirectories(ResolvedPath);
+
+		if (FPaths::IsRelative(ResolvedPath))
+		{
+			ResolvedPath = FPaths::ConvertRelativePathToFull(AbsProjectDir, ResolvedPath);
+		}
+
+		return ResolvedPath;
+	}
+}
+
 FLlamaModelState::FLlamaModelState() : N_Ctx(0)
 {
 	CommonMessages = new std::vector<common_chat_msg>();
@@ -54,7 +89,7 @@ void FLlamaModelState::InitializeCommonParams()
 	}
 	else
 	{
-		ModelPath = GeneralSettings->ModelPath.FilePath;
+		ModelPath = ResolvePathPlaceholders(GeneralSettings->ModelPath.FilePath);
 		UE_LOG(LogLlamaRunner, Display, TEXT("Using model path from project settings: %s"), *ModelPath);
 	}
 
@@ -65,7 +100,7 @@ void FLlamaModelState::InitializeCommonParams()
 	FString CommandLineContextSize;
 	if (FParse::Value(FCommandLine::Get(), TEXT("ContextSize="), CommandLineContextSize))
 	{
-		ContextSize = FCString::Atoi(*CommandLineContextSize);
+		ContextSize = FCString::Atoi(*CommandLineContextSize); //--> UE C String utilities
 		UE_LOG(LogLlamaRunner, Display, TEXT("Using context size from command-line: %d"), ContextSize);
 	}
 	else
@@ -162,7 +197,7 @@ common_params_sampling FLlamaModelState::InitializeSamplerParams() const
 	}
 	else
 	{
-		GrammarPath = GeneralSettings->GrammarPath.FilePath;
+		GrammarPath = ResolvePathPlaceholders(GeneralSettings->GrammarPath.FilePath);
 		if (!GrammarPath.IsEmpty())
 		{
 			UE_LOG(LogLlamaRunner, Display, TEXT("Using grammar path from project settings: %s"), *GrammarPath);
