@@ -23,9 +23,7 @@ class MASTERARBEIT_API UPlayerAbilityMovementPayloadWrapper : public UObject
 {
 	GENERATED_BODY()
 
-	UPlayerAbilityMovementPayloadWrapper()
-	{
-	}
+	UPlayerAbilityMovementPayloadWrapper() {}
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),

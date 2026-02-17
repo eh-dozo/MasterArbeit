@@ -14,6 +14,3 @@ class AMasterArbeitGameMode : public AGameMode
 public:
 	AMasterArbeitGameMode();
 };
-
-
-

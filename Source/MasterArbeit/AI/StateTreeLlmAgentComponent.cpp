@@ -14,6 +14,7 @@ TSubclassOf<UStateTreeSchema> UStateTreeLlmAgentComponent::GetSchema() const
 
 bool UStateTreeLlmAgentComponent::SetContextRequirements(FStateTreeExecutionContext& Context, bool bLogErrors)
 {
-	Context.SetCollectExternalDataCallback(FOnCollectStateTreeExternalData::CreateUObject(this, &UStateTreeLlmAgentComponent::CollectExternalData));
+	Context.SetCollectExternalDataCallback(
+		FOnCollectStateTreeExternalData::CreateUObject(this, &UStateTreeLlmAgentComponent::CollectExternalData));
 	return UStateTreeLlmAgentComponentSchema::SetContextRequirements(*this, Context, bLogErrors);
 }

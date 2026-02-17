@@ -42,7 +42,8 @@ void UTurnActionTrackerComponent::RecordMovement(const FString& Description)
 {
 	if (!bIsTurnActive)
 	{
-		UE_LOG(LogActionTrackerComponent, Warning, TEXT("TurnActionTracker: Attempting to record movement while no turn is active"));
+		UE_LOG(LogActionTrackerComponent, Warning,
+			TEXT("TurnActionTracker: Attempting to record movement while no turn is active"));
 		return;
 	}
 
@@ -54,7 +55,8 @@ void UTurnActionTrackerComponent::RecordVerbalInteraction(const FString& Interac
 {
 	if (!bIsTurnActive)
 	{
-		UE_LOG(LogActionTrackerComponent, Warning, TEXT("TurnActionTracker: Attempting to record verbal interaction while no turn is active"));
+		UE_LOG(LogActionTrackerComponent, Warning,
+			TEXT("TurnActionTracker: Attempting to record verbal interaction while no turn is active"));
 		return;
 	}
 
@@ -66,7 +68,8 @@ void UTurnActionTrackerComponent::RecordAbilityUsed(const FString& AbilityName)
 {
 	if (!bIsTurnActive)
 	{
-		UE_LOG(LogActionTrackerComponent, Warning, TEXT("TurnActionTracker: Attempting to record ability while no turn is active"));
+		UE_LOG(LogActionTrackerComponent, Warning,
+			TEXT("TurnActionTracker: Attempting to record ability while no turn is active"));
 		return;
 	}
 
@@ -95,7 +98,8 @@ FTurnActionData UTurnActionTrackerComponent::EndTurn()
 {
 	if (!bIsTurnActive)
 	{
-		UE_LOG(LogActionTrackerComponent, Warning, TEXT("TurnActionTracker: Attempting to end turn while no turn is active"));
+		UE_LOG(LogActionTrackerComponent, Warning,
+			TEXT("TurnActionTracker: Attempting to end turn while no turn is active"));
 		return FTurnActionData();
 	}
 

@@ -22,4 +22,3 @@ public:
 		meta=(RequiredAssetDataTags="RowStructure=/Script/LlamaRunner.ChatMessage"))
 	UDataTable* FewShotChatHistory;
 };
-

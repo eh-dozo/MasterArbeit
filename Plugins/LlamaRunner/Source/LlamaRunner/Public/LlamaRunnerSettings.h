@@ -41,16 +41,16 @@ public:
 	{
 		switch (UnrealPriority)
 		{
-		case Scheduling_Priority_Normal:
-			return GGML_SCHED_PRIO_NORMAL;
-		case Scheduling_Priority_Medium:
-			return GGML_SCHED_PRIO_MEDIUM;
-		case Scheduling_Priority_High:
-			return GGML_SCHED_PRIO_HIGH;
-		case Scheduling_Priority_Runtime:
-			return GGML_SCHED_PRIO_REALTIME;
-		default:
-			return GGML_SCHED_PRIO_REALTIME;
+			case Scheduling_Priority_Normal:
+				return GGML_SCHED_PRIO_NORMAL;
+			case Scheduling_Priority_Medium:
+				return GGML_SCHED_PRIO_MEDIUM;
+			case Scheduling_Priority_High:
+				return GGML_SCHED_PRIO_HIGH;
+			case Scheduling_Priority_Runtime:
+				return GGML_SCHED_PRIO_REALTIME;
+			default:
+				return GGML_SCHED_PRIO_REALTIME;
 		}
 	}
 };
@@ -62,11 +62,16 @@ class LLAMARUNNER_API UDSLlamaRunnerSettings : public UDeveloperSettings
 
 public:
 	virtual FName GetCategoryName() const override { return "Plugins"; }
-#if WITH_EDITOR
+	#if WITH_EDITOR
 	virtual FText GetSectionText() const override { return FText::FromString("Llama Runner"); }
-	virtual FText GetSectionDescription() const override { return FText::FromString("The model path MUST be specified or the plugin won't work.\nAll the other settings can be left to default if nothing specific is required to use the plugin."); }
-#endif
-	
+
+	virtual FText GetSectionDescription() const override
+	{
+		return FText::FromString(
+			"The model path MUST be specified or the plugin won't work.\nAll the other settings can be left to default if nothing specific is required to use the plugin.");
+	}
+	#endif
+
 	/*
 	 * ----------------------------------------------------------|
 	 *						GENERAL SETTINGS					 *

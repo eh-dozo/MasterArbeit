@@ -13,7 +13,7 @@
 DEFINE_LOG_CATEGORY_STATIC(LogChatHistoryHelper, Log, All);
 
 bool UUBPFLChatHistoryHelper::AddRowToChatHistory(UDataTable* ChatHistoryTable, EChatRole Role, const FString& Content,
-                                                  bool bMarkDirty)
+	bool bMarkDirty)
 {
 	if (!ChatHistoryTable)
 	{
@@ -32,8 +32,8 @@ bool UUBPFLChatHistoryHelper::AddRowToChatHistory(UDataTable* ChatHistoryTable, 
 	NewMessage.Content = Content;
 
 	const FString RowName = FString::Printf(TEXT("Message_%lld_%d"),
-	                                        FDateTime::Now().GetTicks(),
-	                                        FMath::Rand());
+		FDateTime::Now().GetTicks(),
+		FMath::Rand());
 
 	ChatHistoryTable->AddRow(FName(*RowName), NewMessage);
 
@@ -43,7 +43,7 @@ bool UUBPFLChatHistoryHelper::AddRowToChatHistory(UDataTable* ChatHistoryTable, 
 	}
 
 	UE_LOG(LogChatHistoryHelper, Log, TEXT("AddRowToChatHistory: Added message with role %d to table (MarkDirty: %s)"),
-	       static_cast<int32>(Role), bMarkDirty ? TEXT("true") : TEXT("false"));
+		static_cast<int32>(Role), bMarkDirty ? TEXT("true") : TEXT("false"));
 	return true;
 }
 
@@ -162,12 +162,17 @@ FString UUBPFLChatHistoryHelper::GetCharacterNameString(ECharacterGroupName Char
 {
 	switch (CharacterName)
 	{
-	case Player: return TEXT("Mercenary");
-	case Green: return TEXT("Aldric");
-	case Red: return TEXT("Grimnar");
-	case Purple: return TEXT("Lucien");
-	case Default:
-	default: return TEXT("Unknown");
+		case Player:
+			return TEXT("Mercenary");
+		case Green:
+			return TEXT("Aldric");
+		case Red:
+			return TEXT("Grimnar");
+		case Purple:
+			return TEXT("Lucien");
+		case Default:
+		default:
+			return TEXT("Unknown");
 	}
 }
 
@@ -190,7 +195,7 @@ FString UUBPFLChatHistoryHelper::FormatVerbalAction(const FString& VerbalInterac
 }
 
 bool UUBPFLChatHistoryHelper::AddAssistantResponseToHistory(UDataTable* ChatHistoryTable,
-                                                            const FString& RawJsonResponse)
+	const FString& RawJsonResponse)
 {
 	if (!ChatHistoryTable)
 	{
@@ -209,12 +214,12 @@ bool UUBPFLChatHistoryHelper::AddAssistantResponseToHistory(UDataTable* ChatHist
 	if (bSuccess)
 	{
 		UE_LOG(LogChatHistoryHelper, Log,
-		       TEXT("AddAssistantResponseToHistory: Successfully added Assistant message to chat history"));
+			TEXT("AddAssistantResponseToHistory: Successfully added Assistant message to chat history"));
 	}
 	else
 	{
 		UE_LOG(LogChatHistoryHelper, Error,
-		       TEXT("AddAssistantResponseToHistory: Failed to add Assistant message to chat history"));
+			TEXT("AddAssistantResponseToHistory: Failed to add Assistant message to chat history"));
 	}
 
 	return bSuccess;
@@ -245,8 +250,8 @@ bool UUBPFLChatHistoryHelper::ProcessRoundEndForCharacter(
 	if (bSuccess)
 	{
 		UE_LOG(LogChatHistoryHelper, Log,
-		       TEXT("ProcessRoundEndForCharacter: Successfully added turn summary for Turn %d"),
-		       CharacterTurnData.TurnNumber);
+			TEXT("ProcessRoundEndForCharacter: Successfully added turn summary for Turn %d"),
+			CharacterTurnData.TurnNumber);
 	}
 	else
 	{
@@ -256,8 +261,9 @@ bool UUBPFLChatHistoryHelper::ProcessRoundEndForCharacter(
 	return bSuccess;
 }
 
-bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHistoryTable, const int32 NumRowsToKeep, const FString& FewShotsRowNamePrefix,
-                                                           const bool bMarkDirty, const bool bExportBeforeClearing)
+bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHistoryTable, const int32 NumRowsToKeep,
+	const FString& FewShotsRowNamePrefix,
+	const bool bMarkDirty, const bool bExportBeforeClearing)
 {
 	if (!ChatHistoryTable)
 	{
@@ -268,7 +274,7 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 	if (ChatHistoryTable->GetRowStruct() != FChatMessage::StaticStruct())
 	{
 		UE_LOG(LogChatHistoryHelper, Error,
-		       TEXT("ClearChatHistoryKeepFewShots: DataTable is not of type FChatMessage"));
+			TEXT("ClearChatHistoryKeepFewShots: DataTable is not of type FChatMessage"));
 		return false;
 	}
 
@@ -292,7 +298,7 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 		if (!bExportSuccess)
 		{
 			UE_LOG(LogChatHistoryHelper, Warning,
-			       TEXT("ClearChatHistoryKeepFewShots: CSV export failed, but continuing with clear operation"));
+				TEXT("ClearChatHistoryKeepFewShots: CSV export failed, but continuing with clear operation"));
 		}
 	}
 
@@ -301,8 +307,8 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 	if (AllRowNames.Num() <= NumRowsToKeep)
 	{
 		UE_LOG(LogChatHistoryHelper, Log,
-		       TEXT("ClearChatHistoryKeepFewShots: Table has %d rows, keeping all (requested to keep %d)"),
-		       AllRowNames.Num(), NumRowsToKeep);
+			TEXT("ClearChatHistoryKeepFewShots: Table has %d rows, keeping all (requested to keep %d)"),
+			AllRowNames.Num(), NumRowsToKeep);
 		return true;
 	}
 
@@ -329,8 +335,8 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 	}
 
 	UE_LOG(LogChatHistoryHelper, Log,
-	       TEXT("ClearChatHistoryKeepFewShots: Removed %d runtime message rows, kept %d rows (MarkDirty: %s)"),
-	       NumRowsRemoved, AllRowNames.Num() - NumRowsRemoved, bMarkDirty ? TEXT("true") : TEXT("false"));
+		TEXT("ClearChatHistoryKeepFewShots: Removed %d runtime message rows, kept %d rows (MarkDirty: %s)"),
+		NumRowsRemoved, AllRowNames.Num() - NumRowsRemoved, bMarkDirty ? TEXT("true") : TEXT("false"));
 
 	return true;
 }
@@ -380,8 +386,8 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 
 	const FDateTime Now = FDateTime::Now();
 	const FString Timestamp = FString::Printf(TEXT("%04d-%02d-%02d_%02d-%02d-%02d"),
-	                                    Now.GetYear(), Now.GetMonth(), Now.GetDay(),
-	                                    Now.GetHour(), Now.GetMinute(), Now.GetSecond());
+		Now.GetYear(), Now.GetMonth(), Now.GetDay(),
+		Now.GetHour(), Now.GetMinute(), Now.GetSecond());
 
 	// Get participant ID from game instance
 	FString ParticipantID = TEXT("NoParticipant");
@@ -400,7 +406,7 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 	}
 
 	FString Filename = FString::Printf(TEXT("%s_%s_%s_%s.csv"),
-	                                   *ParticipantID, *FinalCharacterName, *Timestamp, *ModelName);
+		*ParticipantID, *FinalCharacterName, *Timestamp, *ModelName);
 
 	const FString FullPath = FPaths::Combine(FPaths::ProjectDir(), "Turn-Logs", Filename);
 
@@ -408,7 +414,7 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 		!FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*DirectoryPath))
 	{
 		UE_LOG(LogChatHistoryHelper, Error,
-			   TEXT("ExportChatHistoryToCSV: Failed to create directory %s"), *DirectoryPath);
+			TEXT("ExportChatHistoryToCSV: Failed to create directory %s"), *DirectoryPath);
 		return false;
 	}
 
@@ -424,10 +430,18 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 			FString RoleString;
 			switch (Row->ChatRole)
 			{
-				case System: RoleString = TEXT("System"); break;
-				case User: RoleString = TEXT("User"); break;
-				case Assistant: RoleString = TEXT("Assistant"); break;
-				default: RoleString = TEXT("Unknown"); break;
+				case System:
+					RoleString = TEXT("System");
+					break;
+				case User:
+					RoleString = TEXT("User");
+					break;
+				case Assistant:
+					RoleString = TEXT("Assistant");
+					break;
+				default:
+					RoleString = TEXT("Unknown");
+					break;
 			}
 
 			CsvContent += FString::Printf(TEXT("%s,%s,\"%s\"\n"),
@@ -438,15 +452,15 @@ bool UUBPFLChatHistoryHelper::ExportChatHistoryToCSV(UDataTable* ChatHistoryTabl
 	}
 
 	if (!FFileHelper::SaveStringToFile(CsvContent, *FullPath,
-	                                    FFileHelper::EEncodingOptions::AutoDetect))
+		FFileHelper::EEncodingOptions::AutoDetect))
 	{
 		UE_LOG(LogChatHistoryHelper, Error,
-		       TEXT("ExportChatHistoryToCSV: Failed to write CSV file to %s"), *FullPath);
+			TEXT("ExportChatHistoryToCSV: Failed to write CSV file to %s"), *FullPath);
 		return false;
 	}
 
 	UE_LOG(LogChatHistoryHelper, Log,
-	       TEXT("ExportChatHistoryToCSV: Successfully exported %d rows to %s"),
-	       RowNames.Num(), *FullPath);
+		TEXT("ExportChatHistoryToCSV: Successfully exported %d rows to %s"),
+		RowNames.Num(), *FullPath);
 	return true;
 }

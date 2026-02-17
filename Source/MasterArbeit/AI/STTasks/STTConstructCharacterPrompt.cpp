@@ -14,7 +14,7 @@ EStateTreeRunStatus FStateTreeCharacterPromptTask::EnterState(FStateTreeExecutio
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s"), *InstanceData.SystemPromptDataAsset->SystemPrompt.ToString());
 	}
-	
+
 	return EStateTreeRunStatus::Running;
 }
 
@@ -24,10 +24,10 @@ FText FStateTreeCharacterPromptTask::GetDescription(const FGuid& ID, FStateTreeD
 {
 	const FInstanceDataType* InstanceData = InstanceDataView.GetPtr<FInstanceDataType>();
 	check(InstanceData);
-	
+
 	const FText Format = (Formatting == EStateTreeNodeFormatting::RichText)
-			? LOCTEXT("ConstructCharacterPromptRich", "<b>Character Prompt</> \"{Text}\"")
-			: LOCTEXT("ConstructCharacterPrompt", "Character Prompt \"{Text}\"");
+		? LOCTEXT("ConstructCharacterPromptRich", "<b>Character Prompt</> \"{Text}\"")
+		: LOCTEXT("ConstructCharacterPrompt", "Character Prompt \"{Text}\"");
 
 	return FText::FormatNamed(Format,
 		TEXT("Text"), LOCTEXT("The prompt", "The prompt")); //TODO: find better description

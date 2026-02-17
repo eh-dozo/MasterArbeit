@@ -104,8 +104,8 @@ APawn* AGMInGame::SpawnCharacterPawnAtCharacterStart(
 	if (!ResultPawn)
 	{
 		UE_LOG(LogGameMode, Warning,
-		       TEXT("GMInGame_SpawnCharacterPawnAtCharacterStart: Couldn't spawn Pawn of type %s at %s"),
-		       *GetNameSafe(ClassFinder.Class), *SpawnTransform.ToHumanReadableString());
+			TEXT("GMInGame_SpawnCharacterPawnAtCharacterStart: Couldn't spawn Pawn of type %s at %s"),
+			*GetNameSafe(ClassFinder.Class), *SpawnTransform.ToHumanReadableString());
 	}
 	return ResultPawn;
 }

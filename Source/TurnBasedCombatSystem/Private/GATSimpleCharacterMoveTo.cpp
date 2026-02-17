@@ -44,7 +44,7 @@ UGATSimpleCharacterMoveTo* UGATSimpleCharacterMoveTo::WaitForCharacterMovementTo
 
 //TODO: register action failure for agent? (e.g.: tripped off)
 void UGATSimpleCharacterMoveTo::OnPathComponentRequestFinishedCallback(FAIRequestID RequestID,
-                                                                       const FPathFollowingResult& Result)
+	const FPathFollowingResult& Result)
 {
 	EndTask();
 

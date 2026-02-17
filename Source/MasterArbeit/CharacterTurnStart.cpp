@@ -13,7 +13,7 @@ ACharacterTurnStart::ACharacterTurnStart(const FObjectInitializer& ObjectInitial
 	GetCapsuleComponent()->InitCapsuleSize(40.0f, 92.0f);
 	GetCapsuleComponent()->SetShouldUpdatePhysicsVolume(false);
 
-#if WITH_EDITORONLY_DATA
+	#if WITH_EDITORONLY_DATA
 	ArrowComponent = CreateEditorOnlyDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 
 	if (!IsRunningCommandlet())
@@ -25,14 +25,13 @@ ACharacterTurnStart::ACharacterTurnStart(const FObjectInitializer& ObjectInitial
 			FText NAME_PlayerStart;
 			FName ID_Navigation;
 			FText NAME_Navigation;
+
 			FConstructorStatics()
 				: PlayerStartTextureObject(TEXT("/Engine/EditorResources/S_Player"))
 				, ID_PlayerStart(TEXT("PlayerStart"))
 				, NAME_PlayerStart(NSLOCTEXT("SpriteCategory", "PlayerStart", "Player Start"))
 				, ID_Navigation(TEXT("Navigation"))
-				, NAME_Navigation(NSLOCTEXT("SpriteCategory", "Navigation", "Navigation"))
-			{
-			}
+				, NAME_Navigation(NSLOCTEXT("SpriteCategory", "Navigation", "Navigation")) {}
 		};
 		static FConstructorStatics ConstructorStatics;
 
@@ -62,5 +61,5 @@ ACharacterTurnStart::ACharacterTurnStart(const FObjectInitializer& ObjectInitial
 	}
 
 	bIsSpatiallyLoaded = false;
-#endif // WITH_EDITORONLY_DATA
+	#endif // WITH_EDITORONLY_DATA
 }

@@ -19,8 +19,9 @@ AMasterArbeitGameMode::AMasterArbeitGameMode()
 	}*/
 
 	// set default controller to our Blueprinted controller
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/LongLiveMadness/Player/BP_TopDownPlayerController"));
-	if(PlayerControllerBPClass.Class != NULL)
+	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(
+		TEXT("/Game/LongLiveMadness/Player/BP_TopDownPlayerController"));
+	if (PlayerControllerBPClass.Class != NULL)
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}

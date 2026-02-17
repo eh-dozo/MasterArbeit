@@ -27,11 +27,11 @@ public:
 	virtual bool IsStructAllowed(const UScriptStruct* InScriptStruct) const override;
 
 	static bool SetContextRequirements(UBrainComponent& BrainComponent, FStateTreeExecutionContext& Context,
-	                                   bool bLogErrors = false);
+		bool bLogErrors = false);
 
-#if WITH_EDITOR
+	#if WITH_EDITOR
 	virtual void PostEditChangeChainProperty(struct FPropertyChangedChainEvent& PropertyChangedEvent) override;
-#endif
+	#endif
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Defaults", NoClear)

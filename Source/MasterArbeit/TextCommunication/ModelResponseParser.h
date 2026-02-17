@@ -123,13 +123,13 @@ class MASTERARBEIT_API UModelResponseParser : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable, Category = "JSON Parser")
 	static bool ParseJsonFromString(const FString& JsonString,
-	                                FJsonObjectWrapper& OutJsonObject,
-	                                FString& OutErrorMessage);
+		FJsonObjectWrapper& OutJsonObject,
+		FString& OutErrorMessage);
 
 	UFUNCTION(BlueprintCallable, Category = "JSON Parser")
 	static bool ParseModelResponseFromJson(const FJsonObjectWrapper& JsonObjectWrapper,
-	                                       FModelResponse& OutModelResponse,
-	                                       FString& OutErrorMessage);
+		FModelResponse& OutModelResponse,
+		FString& OutErrorMessage);
 
 private:
 	static EVerbalResponseType StringToResponseType(const FString& TypeString);

@@ -42,8 +42,7 @@ EStateTreeRunStatus FStateTreePromptCharacterTurnReasoningTask::EnterState(
 
 	// can't use GameInstance->GetSubsystem<...> because it returns the abstract parent class and not the bp subclass
 	UGameplayStatics::GetGameInstance(Context.GetOwner())->ForEachSubsystem<UGameInstanceSubsystem>(
-		[&ChatHistory, &InstanceData, &LastUserPrompt, &bFoundAndExecuted](UGameInstanceSubsystem* Subsystem)
-		{
+		[&ChatHistory, &InstanceData, &LastUserPrompt, &bFoundAndExecuted](UGameInstanceSubsystem* Subsystem) {
 			if (ULlamaCppSubsystem* LlamaRunnerSubsystem = Cast<ULlamaCppSubsystem>(Subsystem))
 			{
 				/*LlamaRunnerSubsystem->AddChatHistory(
@@ -76,18 +75,18 @@ EStateTreeRunStatus FStateTreePromptCharacterTurnReasoningTask::EnterState(
 
 #if WITH_EDITOR
 FText FStateTreePromptCharacterTurnReasoningTask::GetDescription(const FGuid& ID, FStateTreeDataView InstanceDataView,
-                                                                 const IStateTreeBindingLookup& BindingLookup,
-                                                                 EStateTreeNodeFormatting Formatting) const
+	const IStateTreeBindingLookup& BindingLookup,
+	EStateTreeNodeFormatting Formatting) const
 {
 	const FInstanceDataType* InstanceData = InstanceDataView.GetPtr<FInstanceDataType>();
 	check(InstanceData);
 
 	const FText Format = (Formatting == EStateTreeNodeFormatting::RichText)
-		                     ? LOCTEXT("PromptCharacterTurnReasoningRich", "<b>Prompt Model</> \"{Text}\"")
-		                     : LOCTEXT("PromptCharacterTurnReasoning", "Prompt Model \"{Text}\"");
+		? LOCTEXT("PromptCharacterTurnReasoningRich", "<b>Prompt Model</> \"{Text}\"")
+		: LOCTEXT("PromptCharacterTurnReasoning", "Prompt Model \"{Text}\"");
 
 	return FText::FormatNamed(Format,
-	                          TEXT("Text"), LOCTEXT("with Character narrative", "with Character narrative"));
+		TEXT("Text"), LOCTEXT("with Character narrative", "with Character narrative"));
 }
 #endif
 

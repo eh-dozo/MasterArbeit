@@ -8,16 +8,14 @@
 #include "AbilitySystemGlobals.h"
 
 UTurnCostGameplayAbility::UTurnCostGameplayAbility(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer),
-	  Cost(0),
-	  EffectiveCost(0)
-{
-}
+	: Super(ObjectInitializer)
+	, Cost(0)
+	, EffectiveCost(0) {}
 
 void UTurnCostGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                               const FGameplayAbilityActorInfo* ActorInfo,
-                                               const FGameplayAbilityActivationInfo ActivationInfo,
-                                               const FGameplayEventData* TriggerEventData)
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
 {
 	// [ARCHIVE] -> BP replicate in GA_PlayerMovement
 	// Used for e.g. player movement with dynamic distance range given per magnitude
@@ -40,7 +38,6 @@ void UTurnCostGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 		}
 	*/
 
-
 	EffectiveCost = Cost; // fallback to default set in GA_*
 
 	// Only after dynamic cost calculation and cost commit check passed
@@ -49,10 +46,10 @@ void UTurnCostGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle 
 }
 
 void UTurnCostGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle,
-                                          const FGameplayAbilityActorInfo* ActorInfo,
-                                          const FGameplayAbilityActivationInfo ActivationInfo,
-                                          bool bReplicateEndAbility,
-                                          bool bWasCancelled)
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility,
+	bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
@@ -60,8 +57,8 @@ void UTurnCostGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handl
 }
 
 bool UTurnCostGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle,
-                                         const FGameplayAbilityActorInfo* ActorInfo,
-                                         OUT FGameplayTagContainer* OptionalRelevantTags) const
+	const FGameplayAbilityActorInfo* ActorInfo,
+	OUT FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (CachedCostEffectSpec.IsValid())
 	{
@@ -123,8 +120,8 @@ bool UTurnCostGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle
 }
 
 void UTurnCostGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle,
-                                         const FGameplayAbilityActorInfo* ActorInfo,
-                                         const FGameplayAbilityActivationInfo ActivationInfo) const
+	const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo) const
 {
 	if (CachedCostEffectSpec.IsValid())
 	{

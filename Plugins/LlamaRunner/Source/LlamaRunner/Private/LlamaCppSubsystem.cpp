@@ -51,7 +51,8 @@ namespace
 	}
 }
 
-FLlamaModelState::FLlamaModelState() : N_Ctx(0)
+FLlamaModelState::FLlamaModelState()
+	: N_Ctx(0)
 {
 	CommonMessages = new std::vector<common_chat_msg>();
 }
@@ -142,8 +143,8 @@ common_params_sampling FLlamaModelState::InitializeSamplerParams() const
 	Params->top_p = GeneralSettings->DecodingMethod == Traditional ? GeneralSettings->TopP : 1.0f;
 	Params->min_p = GeneralSettings->DecodingMethod == MinP ? GeneralSettings->MinPValue : 0.0f;
 	Params->top_k = GeneralSettings->bUseTopKFiltering && GeneralSettings->DecodingMethod == Traditional
-		                ? GeneralSettings->TopK
-		                : 0;
+		? GeneralSettings->TopK
+		: 0;
 
 	// Repetition penalties
 	if (GeneralSettings->bUseRepetitionPenalty)
@@ -215,7 +216,7 @@ common_params_sampling FLlamaModelState::InitializeSamplerParams() const
 	else if (!GrammarPath.IsEmpty())
 	{
 		UE_LOG(LogLlamaRunner, Warning, TEXT("Failed to load grammar file: %s"),
-		       *GrammarPath);
+			*GrammarPath);
 	}
 
 	return *Params;
@@ -357,7 +358,7 @@ FString FLlamaModelState::Generate(const FContextWarningCallback& WarningCallbac
 				"",
 				"",
 				""
-			);
+				);
 
 			if (!ChatTemplates)
 			{
@@ -375,22 +376,22 @@ FString FLlamaModelState::Generate(const FContextWarningCallback& WarningCallbac
 			common_chat_params ChatParams = common_chat_templates_apply(
 				ChatTemplates.get(),
 				TemplateInputs
-			);
+				);
 
 			EmbeddedInput = common_tokenize(
 				Context.get(),
 				ChatParams.prompt,
 				true,
 				true
-			);
+				);
 
 			UE_LOG(LogLlamaRunner, Display, TEXT("Tokenized %d messages into %d tokens"),
-			       static_cast<int>(CommonMessages->size()), static_cast<int>(EmbeddedInput.size()));
+				static_cast<int>(CommonMessages->size()), static_cast<int>(EmbeddedInput.size()));
 
 			// Check if prompt + minimum generation buffer can fit
 			// 256 fits the current grammar max length and 512 would be leaving ~55% more 
 			// if we know what to increase the grammar length (i.e. reasoning or verbal-interaction)
-			if (constexpr int32 MinGenerationBuffer = 256; 
+			if (constexpr int32 MinGenerationBuffer = 256;
 				!CanFitTokens(static_cast<int32>(EmbeddedInput.size()), MinGenerationBuffer))
 			{
 				const int32 TokensNeeded = static_cast<int32>(EmbeddedInput.size()) + MinGenerationBuffer;
@@ -428,9 +429,9 @@ FString FLlamaModelState::Generate(const FContextWarningCallback& WarningCallbac
 	}
 
 	std::vector<llama_token> Embedded;
-	int32 N_Past = 0; // Number of tokens processed so far
+	int32 N_Past = 0;                         // Number of tokens processed so far
 	int32 N_Remain = CommonParams->n_predict; // Remaining tokens to generate
-	int32 N_Consumed = 0; // Tokens consumed from input
+	int32 N_Consumed = 0;                     // Tokens consumed from input
 
 	std::ostringstream Assistant_SS;
 
@@ -575,7 +576,7 @@ int32 FLlamaModelState::GetContextTokensUsed() const
 	const llama_pos MinPos = llama_memory_seq_pos_min(Memory, 0);
 	if (MinPos < 0)
 	{
-		return 0;  // Defensive: shouldn't happen if MaxPos >= 0
+		return 0; // Defensive: shouldn't happen if MaxPos >= 0
 	}
 
 	return MaxPos - MinPos + 1;
@@ -611,32 +612,32 @@ void FLlamaModelState::AddChatAndFormat(const EChatRole Role, const FString& Con
 		"",
 		"",
 		""
-	);
+		);
 
-	const common_chat_msg NewMessage{RoleStr, ContentStr};
+	const common_chat_msg NewMessage{ RoleStr, ContentStr };
 	auto Formatted = common_chat_format_single(
 		ChatTemplates.get(),
 		*CommonMessages,
 		NewMessage,
 		RoleStr == "user",
 		false); // new API
-	CommonMessages->push_back({RoleStr, ContentStr});
+	CommonMessages->push_back({ RoleStr, ContentStr });
 
 	UE_LOG(LogLlamaRunner, Verbose, TEXT("Added message - Role: %s, Length: %d"),
-	       *FString(RoleStr.c_str()), Content.Len());
+		*FString(RoleStr.c_str()), Content.Len());
 }
 
 // -------------- FLlamaInferenceThread --------------
 
 FLlamaInferenceThread::FLlamaInferenceThread(ULlamaCppSubsystem* InOwner)
 	: Owner(InOwner)
-	  , bShutdown(false)
-	  , bIsProcessing(false)
-	  , NextRequestId(1)
+	, bShutdown(false)
+	, bIsProcessing(false)
+	, NextRequestId(1)
 {
 	WakeUpEvent = FGenericPlatformProcess::GetSynchEventFromPool(false);
 	Thread = FRunnableThread::Create(this, TEXT("LlamaInferenceThread"),
-	                                 0, TPri_AboveNormal);
+		0, TPri_AboveNormal);
 }
 
 FLlamaInferenceThread::~FLlamaInferenceThread()
@@ -660,8 +661,7 @@ FLlamaInferenceThread::~FLlamaInferenceThread()
 // --- LOGS
 void FLlamaInferenceThread::BindLlamaRunnerLogs()
 {
-	llama_log_set([](const ggml_log_level LlamaLogLevel, const char* LlamaLogText, void*)
-	{
+	llama_log_set([](const ggml_log_level LlamaLogLevel, const char* LlamaLogText, void*) {
 		if (LlamaLogLevel >= GGML_LOG_LEVEL_ERROR)
 		{
 			UE_LOG(LogLlamaRunner, Error, TEXT("%hs"), LlamaLogText);
@@ -711,26 +711,26 @@ uint32 FLlamaInferenceThread::Run()
 
 			switch (Command.Type)
 			{
-			case ELlamaCommandType::ContinueChat:
-				ProcessContinueChat(Command);
-#if !UE_BUILD_SHIPPING
-				if (!GeneralSettings->bIsNoPerf)
-				{
-					LogSamplingAndGenerationPerformances();
-				}
-#endif
-				break;
-			case ELlamaCommandType::SwitchCharacter:
-				ProcessSwitchCharacter(Command);
-				break;
+				case ELlamaCommandType::ContinueChat:
+					ProcessContinueChat(Command);
+					#if !UE_BUILD_SHIPPING
+					if (!GeneralSettings->bIsNoPerf)
+					{
+						LogSamplingAndGenerationPerformances();
+					}
+					#endif
+					break;
+				case ELlamaCommandType::SwitchCharacter:
+					ProcessSwitchCharacter(Command);
+					break;
 
-			case ELlamaCommandType::ClearHistory:
-				ProcessClearHistory(Command);
-				break;
+				case ELlamaCommandType::ClearHistory:
+					ProcessClearHistory(Command);
+					break;
 
-			case ELlamaCommandType::Shutdown:
-				bShutdown = true;
-				break;
+				case ELlamaCommandType::Shutdown:
+					bShutdown = true;
+					break;
 			}
 
 			bIsProcessing = false;
@@ -771,7 +771,7 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 	if (!bHasActiveConversation)
 	{
 		UE_LOG(LogLlamaRunner, Warning,
-		       TEXT("No active conversation, initializing with default character"));
+			TEXT("No active conversation, initializing with default character"));
 
 		if (!CurrentSystemPrompt.IsEmpty())
 		{
@@ -788,11 +788,9 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 
 	ModelState->AddChatAndFormat(User, Command.UserPrompt);
 
-	auto WarningCallback = [Owner = Owner](int32 TokensUsed, int32 TokensTotal, float UsagePercent)
-	{
+	auto WarningCallback = [Owner = Owner](int32 TokensUsed, int32 TokensTotal, float UsagePercent) {
 		AsyncTask(ENamedThreads::GameThread,
-			[Owner, TokensUsed, TokensTotal, UsagePercent]
-			{
+			[Owner, TokensUsed, TokensTotal, UsagePercent] {
 				if (Owner)
 				{
 					Owner->OnContextWarning.Broadcast(TokensUsed, TokensTotal, UsagePercent);
@@ -812,18 +810,18 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 		// Write timing to file
 		const FString TimingLine = FString::Printf(TEXT("%.2f\n"), InferenceTimeSeconds);
 		const FString TimingsFilePath = FPaths::ProjectDir() / TEXT("timings.txt");
-		FFileHelper::SaveStringToFile(TimingLine, *TimingsFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
+		FFileHelper::SaveStringToFile(TimingLine, *TimingsFilePath, FFileHelper::EEncodingOptions::AutoDetect,
+			&IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 
 		AsyncTask(ENamedThreads::GameThread,
-		          [Owner = Owner, Response, RequestId = Command.RequestId]
-		          {
-			          if (Owner)
-			          {
-				          Owner->OnInferenceComplete.Broadcast(Response);
-				          Owner->OnInferenceTimingCaptured.Broadcast();
-				          Owner->LastRequestId = RequestId;
-			          }
-		          });
+			[Owner = Owner, Response, RequestId = Command.RequestId] {
+				if (Owner)
+				{
+					Owner->OnInferenceComplete.Broadcast(Response);
+					Owner->OnInferenceTimingCaptured.Broadcast();
+					Owner->LastRequestId = RequestId;
+				}
+			});
 	}
 	else
 	{
@@ -840,8 +838,7 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 
 		// Always broadcast error when generation fails
 		AsyncTask(ENamedThreads::GameThread,
-			[Owner = Owner, TokensUsed, TokensTotal, TokensRemaining]
-			{
+			[Owner = Owner, TokensUsed, TokensTotal, TokensRemaining] {
 				if (Owner)
 				{
 					Owner->OnContextError.Broadcast(TokensUsed, TokensTotal, TokensRemaining);
@@ -859,7 +856,7 @@ void FLlamaInferenceThread::ProcessSwitchCharacter(const FLlamaCommand& Command)
 	}
 
 	UE_LOG(LogLlamaRunner, Display,
-	       TEXT("Switching character: clearing conversation and KV cache"));
+		TEXT("Switching character: clearing conversation and KV cache"));
 
 	// Clear previous conversation
 	ModelState->ClearMessages();
@@ -888,26 +885,25 @@ void FLlamaInferenceThread::ProcessSwitchCharacter(const FLlamaCommand& Command)
 	if (!Command.UserPrompt.IsEmpty())
 	{
 		ProcessContinueChat(Command);
-#if !UE_BUILD_SHIPPING
+		#if !UE_BUILD_SHIPPING
 		if (!GeneralSettings->bIsNoPerf)
 		{
 			LogSamplingAndGenerationPerformances();
 		}
-#endif
+		#endif
 	}
 	else
 	{
 		// notify character switch is complete
 		AsyncTask(ENamedThreads::GameThread,
-		          [Owner = Owner, RequestId = Command.RequestId]
-		          {
-			          if (Owner)
-			          {
-				          Owner->LastRequestId = RequestId;
-				          UE_LOG(LogLlamaRunner, Display,
-				                 TEXT("Character switched successfully"));
-			          }
-		          });
+			[Owner = Owner, RequestId = Command.RequestId] {
+				if (Owner)
+				{
+					Owner->LastRequestId = RequestId;
+					UE_LOG(LogLlamaRunner, Display,
+						TEXT("Character switched successfully"));
+				}
+			});
 	}
 }
 
@@ -967,7 +963,7 @@ void ULlamaCppSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	if (GeneralSettings->ModelPath.FilePath.IsEmpty())
 	{
 		UE_LOG(LogLlamaRunner, Warning,
-		       TEXT("Model path empty, skipping initialization"));
+			TEXT("Model path empty, skipping initialization"));
 		return;
 	}
 
@@ -1005,7 +1001,7 @@ void ULlamaCppSubsystem::ContinueConversation(const FString& UserPrompt) const
 
 	const uint32 RequestId = InferenceThread->QueueCommand(Command);
 	UE_LOG(LogLlamaRunner, Display,
-	       TEXT("Queued continue conversation request %u"), RequestId);
+		TEXT("Queued continue conversation request %u"), RequestId);
 }
 
 void ULlamaCppSubsystem::SwitchCharacter(
@@ -1027,7 +1023,7 @@ void ULlamaCppSubsystem::SwitchCharacter(
 
 	const uint32 RequestId = InferenceThread->QueueCommand(Command);
 	UE_LOG(LogLlamaRunner, Display,
-	       TEXT("Queued character switch request %u"), RequestId);
+		TEXT("Queued character switch request %u"), RequestId);
 }
 
 void ULlamaCppSubsystem::ClearChatHistory(const bool bReseed) const

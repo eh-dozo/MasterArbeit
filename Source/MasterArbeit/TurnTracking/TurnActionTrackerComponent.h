@@ -35,7 +35,7 @@ public:
 		const FString& Terrain,
 		const FString& TimeOfDay,
 		const FString& Weather
-	);
+		);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Turn Tracking")
 	FTurnActionData GetCurrentTurnData() const { return CurrentTurnData; }

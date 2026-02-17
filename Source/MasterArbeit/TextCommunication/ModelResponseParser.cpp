@@ -6,8 +6,8 @@
 #include "LlamaCppSubsystem.h"
 
 bool UModelResponseParser::ParseJsonFromString(const FString& JsonString,
-									FJsonObjectWrapper& OutJsonObject,
-									FString& OutErrorMessage)
+	FJsonObjectWrapper& OutJsonObject,
+	FString& OutErrorMessage)
 {
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
 
@@ -23,8 +23,8 @@ bool UModelResponseParser::ParseJsonFromString(const FString& JsonString,
 EVerbalResponseType UModelResponseParser::StringToResponseType(const FString& TypeString)
 {
 	static const TMap<FString, EVerbalResponseType> ResponseTypeMap = {
-		{TEXT("speech"), EVerbalResponseType::Speech},
-		{TEXT("silence"), EVerbalResponseType::Silence}
+		{ TEXT("speech"), EVerbalResponseType::Speech },
+		{ TEXT("silence"), EVerbalResponseType::Silence }
 	};
 
 	const EVerbalResponseType* Found = ResponseTypeMap.Find(TypeString.ToLower());
@@ -34,17 +34,17 @@ EVerbalResponseType UModelResponseParser::StringToResponseType(const FString& Ty
 EEmotionalTone UModelResponseParser::StringToEmotionalTone(const FString& ToneString)
 {
 	static const TMap<FString, EEmotionalTone> EmotionalToneMap = {
-		{TEXT("enthusiasm"), EEmotionalTone::Enthusiasm},
-		{TEXT("conservatism"), EEmotionalTone::Conservatism},
-		{TEXT("boredom"), EEmotionalTone::Boredom},
-		{TEXT("antagonism"), EEmotionalTone::Antagonism},
-		{TEXT("pain"), EEmotionalTone::Pain},
-		{TEXT("anger"), EEmotionalTone::Anger},
-		{TEXT("no-sympathy"), EEmotionalTone::NoSympathy},
-		{TEXT("fear"), EEmotionalTone::Fear},
-		{TEXT("sympathy"), EEmotionalTone::Sympathy},
-		{TEXT("grief"), EEmotionalTone::Grief},
-		{TEXT("apathy"), EEmotionalTone::Apathy}
+		{ TEXT("enthusiasm"), EEmotionalTone::Enthusiasm },
+		{ TEXT("conservatism"), EEmotionalTone::Conservatism },
+		{ TEXT("boredom"), EEmotionalTone::Boredom },
+		{ TEXT("antagonism"), EEmotionalTone::Antagonism },
+		{ TEXT("pain"), EEmotionalTone::Pain },
+		{ TEXT("anger"), EEmotionalTone::Anger },
+		{ TEXT("no-sympathy"), EEmotionalTone::NoSympathy },
+		{ TEXT("fear"), EEmotionalTone::Fear },
+		{ TEXT("sympathy"), EEmotionalTone::Sympathy },
+		{ TEXT("grief"), EEmotionalTone::Grief },
+		{ TEXT("apathy"), EEmotionalTone::Apathy }
 	};
 
 	const EEmotionalTone* Found = EmotionalToneMap.Find(ToneString.ToLower());
@@ -54,13 +54,13 @@ EEmotionalTone UModelResponseParser::StringToEmotionalTone(const FString& ToneSt
 EMovementPrimitive UModelResponseParser::StringToMovementPrimitive(const FString& PrimitiveString)
 {
 	static const TMap<FString, EMovementPrimitive> PrimitiveMap = {
-		{TEXT("seek"), EMovementPrimitive::Seek},
-		{TEXT("flee"), EMovementPrimitive::Flee},
-		{TEXT("wander"), EMovementPrimitive::Wander},
-		{TEXT("orbit"), EMovementPrimitive::Orbit},
-		{TEXT("avoid-obstacles"), EMovementPrimitive::AvoidObstacle},
-		{TEXT("hide"), EMovementPrimitive::Hide},
-		{TEXT("stay"), EMovementPrimitive::Stay}
+		{ TEXT("seek"), EMovementPrimitive::Seek },
+		{ TEXT("flee"), EMovementPrimitive::Flee },
+		{ TEXT("wander"), EMovementPrimitive::Wander },
+		{ TEXT("orbit"), EMovementPrimitive::Orbit },
+		{ TEXT("avoid-obstacles"), EMovementPrimitive::AvoidObstacle },
+		{ TEXT("hide"), EMovementPrimitive::Hide },
+		{ TEXT("stay"), EMovementPrimitive::Stay }
 	};
 
 	const EMovementPrimitive* Found = PrimitiveMap.Find(PrimitiveString.ToLower());
@@ -70,9 +70,9 @@ EMovementPrimitive UModelResponseParser::StringToMovementPrimitive(const FString
 EMovementTarget UModelResponseParser::StringToMovementTarget(const FString& TargetString)
 {
 	static const TMap<FString, EMovementTarget> TargetMap = {
-		{TEXT("mercenary"), EMovementTarget::Mercenary},
-		{TEXT("road"), EMovementTarget::Road},
-		{TEXT("forest"), EMovementTarget::Forest}
+		{ TEXT("mercenary"), EMovementTarget::Mercenary },
+		{ TEXT("road"), EMovementTarget::Road },
+		{ TEXT("forest"), EMovementTarget::Forest }
 	};
 
 	const EMovementTarget* Found = TargetMap.Find(TargetString.ToLower());
@@ -82,10 +82,10 @@ EMovementTarget UModelResponseParser::StringToMovementTarget(const FString& Targ
 EMovementDistance UModelResponseParser::StringToMovementDistance(const FString& DistanceString)
 {
 	static const TMap<FString, EMovementDistance> DistanceMap = {
-		{TEXT("adjacent"), EMovementDistance::Adjacent},
-		{TEXT("near"), EMovementDistance::Near},
-		{TEXT("moderate"), EMovementDistance::Moderate},
-		{TEXT("far"), EMovementDistance::Far}
+		{ TEXT("adjacent"), EMovementDistance::Adjacent },
+		{ TEXT("near"), EMovementDistance::Near },
+		{ TEXT("moderate"), EMovementDistance::Moderate },
+		{ TEXT("far"), EMovementDistance::Far }
 	};
 
 	const EMovementDistance* Found = DistanceMap.Find(DistanceString.ToLower());
@@ -95,8 +95,8 @@ EMovementDistance UModelResponseParser::StringToMovementDistance(const FString& 
 EStayOrientation UModelResponseParser::StringToStayOrientation(const FString& OrientationString)
 {
 	static const TMap<FString, EStayOrientation> OrientationMap = {
-		{TEXT("maintain"), EStayOrientation::Maintain},
-		{TEXT("spin"), EStayOrientation::Spin}
+		{ TEXT("maintain"), EStayOrientation::Maintain },
+		{ TEXT("spin"), EStayOrientation::Spin }
 	};
 
 	const EStayOrientation* Found = OrientationMap.Find(OrientationString.ToLower());
@@ -104,8 +104,8 @@ EStayOrientation UModelResponseParser::StringToStayOrientation(const FString& Or
 }
 
 bool UModelResponseParser::ParseModelResponseFromJson(const FJsonObjectWrapper& JsonObjectWrapper,
-                                                       FModelResponse& OutModelResponse,
-                                                       FString& OutErrorMessage)
+	FModelResponse& OutModelResponse,
+	FString& OutErrorMessage)
 {
 	// --- LOGS
 	FString JsonObjectAsString;
@@ -190,7 +190,8 @@ bool UModelResponseParser::ParseModelResponseFromJson(const FJsonObjectWrapper& 
 		}
 
 		const TArray<TSharedPtr<FJsonValue>>* ParametersArray;
-		if ((*MovementActionObject)->TryGetArrayField(TEXT("parameters"), ParametersArray) && ParametersArray->Num() > 0)
+		if ((*MovementActionObject)->TryGetArrayField(TEXT("parameters"), ParametersArray) && ParametersArray->Num() >
+			0)
 		{
 			const TSharedPtr<FJsonObject>* ParametersObject;
 			if (!(*ParametersArray)[0]->TryGetObject(ParametersObject))

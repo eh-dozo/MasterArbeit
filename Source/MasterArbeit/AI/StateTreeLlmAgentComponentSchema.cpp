@@ -16,7 +16,7 @@ UStateTreeLlmAgentComponentSchema::UStateTreeLlmAgentComponentSchema(const FObje
 	ContextActorClass = APawn::StaticClass();
 	ContextDataDescs[0].Struct = ContextActorClass.Get();
 	ContextDataDescs.Emplace(TEXT("AIController"), AIControllerClass.Get(),
-	                         FGuid(0x0D409243, 0x424A1026, 0x22F68B81, 0x16CCAEF1));
+		FGuid(0x0D409243, 0x424A1026, 0x22F68B81, 0x16CCAEF1));
 	/*ContextDataDescs.Emplace(TEXT("SystemPrompt"), USystemPromptDataAsset::StaticClass(),
 	                         FGuid(0x34AD4870, 0x4D3C3D1B, 0x9D8BDC8F, 0xF773733B));*/
 }
@@ -36,7 +36,7 @@ bool UStateTreeLlmAgentComponentSchema::IsStructAllowed(const UScriptStruct* InS
 }
 
 bool UStateTreeLlmAgentComponentSchema::SetContextRequirements(UBrainComponent& BrainComponent,
-                                                               FStateTreeExecutionContext& Context, bool bLogErrors)
+	FStateTreeExecutionContext& Context, bool bLogErrors)
 {
 	if (!Context.IsValid())
 	{
@@ -45,7 +45,7 @@ bool UStateTreeLlmAgentComponentSchema::SetContextRequirements(UBrainComponent& 
 
 	const FName AIControllerName(TEXT("AIController"));
 	Context.SetContextDataByName(AIControllerName, FStateTreeDataView(BrainComponent.GetAIOwner()));
-	
+
 	/*const FName SystemPromptName(TEXT("SystemPrompt"));
 	Context.SetContextDataByName(SystemPromptName, FStateTreeDataView());*/
 
@@ -63,7 +63,7 @@ void UStateTreeLlmAgentComponentSchema::PostEditChangeChainProperty(
 		if (Property->GetOwnerClass() == UStateTreeLlmAgentComponentSchema::StaticClass())
 		{
 			if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(UStateTreeLlmAgentComponentSchema,
-			                                                    AIControllerClass))
+				AIControllerClass))
 			{
 				ContextDataDescs[1].Struct = AIControllerClass.Get();
 			}

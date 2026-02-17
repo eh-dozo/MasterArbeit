@@ -21,5 +21,6 @@ class MASTERARBEIT_API AGMInGame : public AGameModeBase
 
 private:
 	void SpawnCharacters();
-	APawn* SpawnCharacterPawnAtCharacterStart(const ConstructorHelpers::FClassFinder<APawn>& ClassFinder, const FTransform& SpawnTransform);
+	APawn* SpawnCharacterPawnAtCharacterStart(const ConstructorHelpers::FClassFinder<APawn>& ClassFinder,
+		const FTransform& SpawnTransform);
 };

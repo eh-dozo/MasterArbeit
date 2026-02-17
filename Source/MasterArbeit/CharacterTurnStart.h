@@ -21,9 +21,10 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = CharacterStart)
 	int32 StartTurnIndex = 0;
 
-#if WITH_EDITORONLY_DATA
+	#if WITH_EDITORONLY_DATA
+
 private:
 	UPROPERTY()
 	TObjectPtr<class UArrowComponent> ArrowComponent;
-#endif
+	#endif
 };

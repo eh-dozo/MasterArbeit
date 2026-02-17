@@ -34,13 +34,13 @@ struct MASTERARBEIT_API FStateTreeCharacterPromptTask : public FStateTreeTaskCom
 	virtual const UStruct* GetInstanceDataType() const override { return FInstanceDataType::StaticStruct(); }
 
 	virtual EStateTreeRunStatus EnterState(FStateTreeExecutionContext& Context,
-	                                       const FStateTreeTransitionResult& Transition) const override;
+		const FStateTreeTransitionResult& Transition) const override;
 
-#if WITH_EDITOR
+	#if WITH_EDITOR
 	virtual FText GetDescription(const FGuid& ID,
-	                             FStateTreeDataView InstanceDataView,
-	                             const IStateTreeBindingLookup& BindingLookup,
-	                             EStateTreeNodeFormatting Formatting = EStateTreeNodeFormatting::Text) const override;
+		FStateTreeDataView InstanceDataView,
+		const IStateTreeBindingLookup& BindingLookup,
+		EStateTreeNodeFormatting Formatting = EStateTreeNodeFormatting::Text) const override;
 
 	virtual FName GetIconName() const override
 	{
@@ -51,5 +51,5 @@ struct MASTERARBEIT_API FStateTreeCharacterPromptTask : public FStateTreeTaskCom
 	{
 		return UE::StateTree::Colors::Grey;
 	}
-#endif
+	#endif
 };

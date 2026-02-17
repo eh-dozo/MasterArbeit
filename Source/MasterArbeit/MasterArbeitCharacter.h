@@ -19,10 +19,11 @@ enum ECharacterGroupName
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTurnEndDelegate, AMasterArbeitCharacter*, MasterArbeitCharacter);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTurnStartDelegate);
 
 UCLASS(Blueprintable)
-class AMasterArbeitCharacter : public ACharacter, public  IAbilitySystemInterface
+class AMasterArbeitCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -49,4 +50,3 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 };
-

@@ -33,9 +33,7 @@ struct FCharacterChatMessageTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	FCharacterChatMessageTableRow()
-	{
-	}
+	FCharacterChatMessageTableRow() {}
 
 	FCharacterChatMessageTableRow(const FCharacterChatMessage& NewCharacterChatMessage);
 
@@ -86,9 +84,7 @@ class UCPTVEW_CharacterSpeech : public UCPTVE_Wrapper
 {
 	GENERATED_BODY()
 
-	UCPTVEW_CharacterSpeech()
-	{
-	}
+	UCPTVEW_CharacterSpeech() {}
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
@@ -104,9 +100,7 @@ class UCharacterChatMessageWrapper : public UObject
 {
 	GENERATED_BODY()
 
-	UCharacterChatMessageWrapper()
-	{
-	}
+	UCharacterChatMessageWrapper() {}
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),
@@ -124,14 +118,15 @@ class UDSLTextCommunicationSubsystemSettings : public UDeveloperSettings
 
 public:
 	virtual FName GetCategoryName() const override { return "Project"; }
-#if WITH_EDITOR
+	#if WITH_EDITOR
 	virtual FText GetSectionText() const override { return FText::FromString("TextCommunication Subsystem"); }
+
 	virtual FText GetSectionDescription() const override
 	{
 		return FText::FromString(
 			"Here to specify which system prompt assets to check to extract pre-written dialogs in the few-shots.");
 	}
-#endif
+	#endif
 
 	UPROPERTY(Config, EditAnywhere, Category="Few-Shot Extraction",
 		meta=(ToolTip="System Prompt Data Assets whose few-shot chat history will be extracted on game startup"))
@@ -147,7 +142,8 @@ public:
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const FCharacterChatMessage&,
-                                            CharacterChatMessageWrapper);
+	CharacterChatMessageWrapper);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChatMessagesCleared);
 
 /**
@@ -180,14 +176,14 @@ public:
 
 private:
 	void ExtractFewShotDialogsFromSystemPrompt(const class USystemPromptDataAsset* SystemPromptAsset,
-	                                           TEnumAsByte<ECharacterGroupName> CharacterName,
-	                                           TEnumAsByte<ECharacterGroupName> PlayerName);
+		TEnumAsByte<ECharacterGroupName> CharacterName,
+		TEnumAsByte<ECharacterGroupName> PlayerName);
 	static FString ExtractDialogFromAssistantMessage(const FString& JsonContent);
 	static FString ExtractDialogFromUserTurnSummary(const FString& TurnSummaryContent);
 
 	bool IsDialogAlreadyInChatMessages(const FString& DialogText) const;
 
 	void AddDialogToChatMessages(const FString& DialogText,
-	                             TEnumAsByte<ECharacterGroupName> CharacterName,
-	                             const FLinearColor& ThemeColor);
+		TEnumAsByte<ECharacterGroupName> CharacterName,
+		const FLinearColor& ThemeColor);
 };

@@ -53,7 +53,7 @@ struct FLlamaCommand
 	FString UserPrompt;
 	FString SystemPrompt;
 	TArray<FChatMessage> FewShotExamples;
-	uint32 RequestId; // for tracking
+	uint32 RequestId;            // for tracking
 	bool bReseedOnClear = false; // for ClearHistory command
 };
 
@@ -64,13 +64,13 @@ public:
 	~FLlamaModelState();
 
 	bool Initialize();
-	
+
 	void InitializeCommonParams();
 	common_params_sampling InitializeSamplerParams() const;
 	void InitializeThreadPools();
 
 	void Shutdown();
-	
+
 	bool IsValid() const { return Model && Context && CommonSampler; }
 
 	// Callback signature for context warnings during generation
@@ -103,7 +103,7 @@ private:
 	uint32 CurrentSamplerSeed = GenerateNewSeed();
 
 	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
-	
+
 	llama_model_ptr Model = nullptr;
 	llama_context_ptr Context = nullptr;
 	common_sampler* CommonSampler = nullptr;
@@ -125,7 +125,7 @@ class FLlamaInferenceThread : public FRunnable
 {
 public:
 	FLlamaInferenceThread(ULlamaCppSubsystem* InOwner);
-	virtual ~FLlamaInferenceThread();
+	virtual ~FLlamaInferenceThread() override;
 
 	// FRunnable interface
 	virtual bool Init() override;
@@ -138,7 +138,7 @@ public:
 
 private:
 	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
-	
+
 	void ProcessContinueChat(const FLlamaCommand& Command);
 	void ProcessSwitchCharacter(const FLlamaCommand& Command);
 	void ProcessClearHistory(const FLlamaCommand& Command);
@@ -170,14 +170,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
 	int32, TokensUsed,
 	int32, TokensTotal,
 	float, UsagePercent
-);
+	);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
 	FOnContextErrorDelegate,
 	int32, TokensUsed,
 	int32, TokensTotal,
 	int32, TokensRemaining
-);
+	);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInferenceTimingCapturedDelegate);
 
@@ -192,7 +192,7 @@ class LLAMARUNNER_API ULlamaCppSubsystem : public UGameInstanceSubsystem
 public:
 	UPROPERTY()
 	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
 	FOnInferenceCompleteDelegate OnInferenceComplete;
 

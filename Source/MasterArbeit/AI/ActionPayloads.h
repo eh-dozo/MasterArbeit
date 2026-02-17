@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "MasterArbeit/TextCommunication/ModelResponseParser.h"
 #include "UObject/Object.h"
 #include "ActionPayloads.generated.h"
 
@@ -25,9 +24,7 @@ class UMovementActionWrapper : public UObject
 {
 	GENERATED_BODY()
 
-	UMovementActionWrapper()
-	{
-	}
+	UMovementActionWrapper() {}
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn=true),

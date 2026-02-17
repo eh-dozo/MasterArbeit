@@ -17,14 +17,14 @@ class MASTERARBEIT_API UUBPFLChatHistoryHelper : public UBlueprintFunctionLibrar
 public:
 	UFUNCTION(BlueprintCallable, Category = "Chat History")
 	static bool AddRowToChatHistory(UDataTable* ChatHistoryTable, EChatRole Role, const FString& Content,
-	                                bool bMarkDirty = false);
+		bool bMarkDirty = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Chat History")
 	static FString FormatTurnSummary(
 		const FTurnActionData& CurrentTurn,
 		const TArray<FTurnActionData>& OtherCharactersTurns,
 		const FTurnActionData& OwnPreviousTurn
-	);
+		);
 
 	// Not used for now -> static insertion of available actions in FormatTurnSummary
 	//					-> (not enough actions implemented)
@@ -40,14 +40,15 @@ public:
 		const FTurnActionData& CharacterTurnData,
 		const TArray<FTurnActionData>& OtherCharactersTurns,
 		const FTurnActionData& PreviousTurnData
-	);
+		);
 
-	UFUNCTION(BlueprintCallable, Category = "Chat History", meta = (AdvancedDisplay = "NumRowsToKeep, bMarkDirty, bExportBeforeClearing"))
+	UFUNCTION(BlueprintCallable, Category = "Chat History",
+		meta = (AdvancedDisplay = "NumRowsToKeep, bMarkDirty, bExportBeforeClearing"))
 	static bool ClearChatHistoryKeepFewShots(UDataTable* ChatHistoryTable,
-	                                         const int32 NumRowsToKeep = 3,
-	                                         const FString& FewShotsRowNamePrefix = FString("FewShot_"),
-	                                         const bool bMarkDirty = false,
-	                                         const bool bExportBeforeClearing = true);
+		const int32 NumRowsToKeep = 3,
+		const FString& FewShotsRowNamePrefix = FString("FewShot_"),
+		const bool bMarkDirty = false,
+		const bool bExportBeforeClearing = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Chat History")
 	static bool ExportChatHistoryToCSV(

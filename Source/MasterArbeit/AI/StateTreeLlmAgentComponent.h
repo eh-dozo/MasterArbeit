@@ -14,7 +14,7 @@ class MASTERARBEIT_API UStateTreeLlmAgentComponent : public UStateTreeComponent
 
 public:
 	//~ BEGIN IStateTreeSchemaProvider
-	TSubclassOf<UStateTreeSchema> GetSchema() const override;
+	virtual TSubclassOf<UStateTreeSchema> GetSchema() const override;
 	//~ END
 
 	virtual bool SetContextRequirements(FStateTreeExecutionContext& Context, bool bLogErrors = false) override;

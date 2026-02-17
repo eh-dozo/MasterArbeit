@@ -22,7 +22,7 @@ class TURNBASEDCOMBATSYSTEM_API UGATSimpleCharacterMoveTo : public UAbilityTask
 		meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "true"),
 		Category = "Ability|Tasks")
 	static UGATSimpleCharacterMoveTo* WaitForCharacterMovementToComplete(UGameplayAbility* OwningAbility,
-	                                                                     FVector InTargetLocation);
+		FVector InTargetLocation);
 
 	virtual void Activate() override;
 

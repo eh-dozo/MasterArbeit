@@ -16,7 +16,7 @@ FCharacterChatMessageTableRow::FCharacterChatMessageTableRow(const FCharacterCha
 }
 
 UCharacterChatMessageWrapper* UCharacterChatMessageWrapper::CreateWrapper(UObject* Outer,
-                                                                          const FCharacterChatMessage& Message)
+	const FCharacterChatMessage& Message)
 {
 	UCharacterChatMessageWrapper* Wrapper = NewObject<UCharacterChatMessageWrapper>(Outer);
 	Wrapper->CharacterChatMessage = Message;
@@ -39,20 +39,20 @@ void UTextCommunicationSubsystem::Initialize(FSubsystemCollectionBase& Collectio
 				IsValid(SystemPrompt))
 			{
 				ExtractFewShotDialogsFromSystemPrompt(SystemPrompt, Settings->AldricCharacterName,
-				                                      Settings->MercenaryCharacterName);
+					Settings->MercenaryCharacterName);
 			}
 			else
 			{
 				UE_LOG(LogTextCommunicationSubsystem, Warning, TEXT("Failed to load SystemPromptDataAsset: %s"),
-				       *SystemPromptPtr.ToString());
+					*SystemPromptPtr.ToString());
 			}
 		}
 	}
 	else
 	{
 		UE_LOG(LogTextCommunicationSubsystem, Display,
-		       TEXT("No SystemPromptDataAssets configured in Project Settings > Project > TextCommunication Subsystem"
-		       ));
+			TEXT("No SystemPromptDataAssets configured in Project Settings > Project > TextCommunication Subsystem"
+			));
 	}
 }
 
@@ -71,8 +71,8 @@ void UTextCommunicationSubsystem::AddCharacterChatMessage(FCharacterChatMessage 
 	}
 
 	const FString RowName = FString::Printf(TEXT("%s_%lld"),
-	                                        *UEnum::GetValueAsString(CharacterChatMessage.CharacterName.GetValue()),
-	                                        FDateTime::Now().GetTicks());
+		*UEnum::GetValueAsString(CharacterChatMessage.CharacterName.GetValue()),
+		FDateTime::Now().GetTicks());
 	const FCharacterChatMessageTableRow NewCCMTableRow = FCharacterChatMessageTableRow(CharacterChatMessage);
 
 	CharacterChatMessages->AddRow(FName(*RowName), NewCCMTableRow);
@@ -96,7 +96,8 @@ void UTextCommunicationSubsystem::ClearChatMessages(bool bReextractFewShots)
 {
 	if (!IsValid(CharacterChatMessages))
 	{
-		UE_LOG(LogTextCommunicationSubsystem, Error, TEXT("ClearChatMessages: CharacterChatMessages DataTable is invalid"));
+		UE_LOG(LogTextCommunicationSubsystem, Error,
+			TEXT("ClearChatMessages: CharacterChatMessages DataTable is invalid"));
 		return;
 	}
 
@@ -106,7 +107,8 @@ void UTextCommunicationSubsystem::ClearChatMessages(bool bReextractFewShots)
 
 	if (bReextractFewShots)
 	{
-		if (const UDSLTextCommunicationSubsystemSettings* Settings = GetDefault<UDSLTextCommunicationSubsystemSettings>();
+		if (const UDSLTextCommunicationSubsystemSettings* Settings = GetDefault<
+				UDSLTextCommunicationSubsystemSettings>();
 			Settings && Settings->SystemPromptsToExtract.Num() > 0)
 		{
 			for (const TSoftObjectPtr<USystemPromptDataAsset>& SystemPromptPtr : Settings->SystemPromptsToExtract)
@@ -115,7 +117,7 @@ void UTextCommunicationSubsystem::ClearChatMessages(bool bReextractFewShots)
 					IsValid(SystemPrompt))
 				{
 					ExtractFewShotDialogsFromSystemPrompt(SystemPrompt, Settings->AldricCharacterName,
-					                                      Settings->MercenaryCharacterName);
+						Settings->MercenaryCharacterName);
 				}
 			}
 		}
@@ -132,7 +134,7 @@ FString UTextCommunicationSubsystem::ExtractDialogFromAssistantMessage(const FSt
 		!UModelResponseParser::ParseJsonFromString(JsonContent, JsonWrapper, ErrorMessage))
 	{
 		UE_LOG(LogTextCommunicationSubsystem, Warning, TEXT("Failed to parse Assistant message JSON: %s"),
-		       *ErrorMessage);
+			*ErrorMessage);
 		return FString();
 	}
 
@@ -192,7 +194,7 @@ FString UTextCommunicationSubsystem::ExtractDialogFromUserTurnSummary(const FStr
 			{
 				int32 OpenQuoteIndex = SaidIndex + 5; // "said " = 5 chars
 				int32 CloseQuoteIndex = TrimmedLine.Find(TEXT("\""), ESearchCase::CaseSensitive, ESearchDir::FromStart,
-				                                         OpenQuoteIndex + 1);
+					OpenQuoteIndex + 1);
 
 				if (CloseQuoteIndex != INDEX_NONE)
 				{
@@ -229,8 +231,8 @@ bool UTextCommunicationSubsystem::IsDialogAlreadyInChatMessages(const FString& D
 }
 
 void UTextCommunicationSubsystem::AddDialogToChatMessages(const FString& DialogText,
-                                                          TEnumAsByte<ECharacterGroupName> CharacterName,
-                                                          const FLinearColor& ThemeColor)
+	TEnumAsByte<ECharacterGroupName> CharacterName,
+	const FLinearColor& ThemeColor)
 {
 	if (DialogText.IsEmpty())
 	{
@@ -246,7 +248,7 @@ void UTextCommunicationSubsystem::AddDialogToChatMessages(const FString& DialogT
 
 	// TODO: temp
 	UE_LOG(LogTextCommunicationSubsystem, Display, TEXT("Added few-shot dialog to CharacterChatMessages: [%s] %s"),
-	       *UEnum::GetValueAsString(CharacterName.GetValue()), *DialogText);
+		*UEnum::GetValueAsString(CharacterName.GetValue()), *DialogText);
 }
 
 void UTextCommunicationSubsystem::ExtractFewShotDialogsFromSystemPrompt(
@@ -257,14 +259,14 @@ void UTextCommunicationSubsystem::ExtractFewShotDialogsFromSystemPrompt(
 	if (!IsValid(SystemPromptAsset))
 	{
 		UE_LOG(LogTextCommunicationSubsystem, Warning,
-		       TEXT("Invalid SystemPromptDataAsset provided for few-shot extraction"));
+			TEXT("Invalid SystemPromptDataAsset provided for few-shot extraction"));
 		return;
 	}
 
 	if (!IsValid(SystemPromptAsset->FewShotChatHistory))
 	{
 		UE_LOG(LogTextCommunicationSubsystem, Warning,
-		       TEXT("No FewShotChatHistory DataTable in SystemPromptDataAsset"));
+			TEXT("No FewShotChatHistory DataTable in SystemPromptDataAsset"));
 		return;
 	}
 
@@ -322,5 +324,5 @@ void UTextCommunicationSubsystem::ExtractFewShotDialogsFromSystemPrompt(
 	}
 
 	UE_LOG(LogTextCommunicationSubsystem, Display, TEXT("Few-shot extraction complete. Extracted: %d, Skipped: %d"),
-	       ExtractedCount, SkippedCount);
+		ExtractedCount, SkippedCount);
 }
