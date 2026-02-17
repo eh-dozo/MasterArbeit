@@ -92,6 +92,38 @@ void UTextCommunicationSubsystem::AddCharacterChatMessage(FCharacterChatMessage 
 	}
 }
 
+void UTextCommunicationSubsystem::ClearChatMessages(bool bReextractFewShots)
+{
+	if (!IsValid(CharacterChatMessages))
+	{
+		UE_LOG(LogTextCommunicationSubsystem, Error, TEXT("ClearChatMessages: CharacterChatMessages DataTable is invalid"));
+		return;
+	}
+
+	CharacterChatMessages->EmptyTable();
+
+	UE_LOG(LogTextCommunicationSubsystem, Log, TEXT("ClearChatMessages: Cleared all chat messages from UI DataTable"));
+
+	if (bReextractFewShots)
+	{
+		if (const UDSLTextCommunicationSubsystemSettings* Settings = GetDefault<UDSLTextCommunicationSubsystemSettings>();
+			Settings && Settings->SystemPromptsToExtract.Num() > 0)
+		{
+			for (const TSoftObjectPtr<USystemPromptDataAsset>& SystemPromptPtr : Settings->SystemPromptsToExtract)
+			{
+				if (const USystemPromptDataAsset* SystemPrompt = SystemPromptPtr.LoadSynchronous();
+					IsValid(SystemPrompt))
+				{
+					ExtractFewShotDialogsFromSystemPrompt(SystemPrompt, Settings->AldricCharacterName,
+					                                      Settings->MercenaryCharacterName);
+				}
+			}
+		}
+	}
+
+	OnChatMessagesCleared.Broadcast();
+}
+
 FString UTextCommunicationSubsystem::ExtractDialogFromAssistantMessage(const FString& JsonContent)
 {
 	FJsonObjectWrapper JsonWrapper;
