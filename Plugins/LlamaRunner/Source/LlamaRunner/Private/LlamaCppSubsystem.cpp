@@ -136,7 +136,7 @@ common_params_sampling FLlamaModelState::InitializeSamplerParams() const
 {
 	common_params_sampling* Params = new common_params_sampling();
 
-	Params->seed = InitialSamplerSeed;
+	Params->seed = CurrentSamplerSeed;
 
 	Params->temp = GeneralSettings->Temperature;
 	Params->top_p = GeneralSettings->DecodingMethod == Traditional ? GeneralSettings->TopP : 1.0f;
@@ -531,6 +531,28 @@ void FLlamaModelState::ResetSampler() const
 	}
 }
 
+void FLlamaModelState::ReinitializeSamplerWithNewSeed()
+{
+	CurrentSamplerSeed = GenerateNewSeed();
+
+	if (CommonSampler)
+	{
+		common_sampler_free(CommonSampler);
+		CommonSampler = nullptr;
+	}
+
+	CommonSampler = common_sampler_init(Model.get(), InitializeSamplerParams());
+
+	if (CommonSampler)
+	{
+		UE_LOG(LogLlamaRunner, Display, TEXT("Sampler reinitialized with new seed: %u"), CurrentSamplerSeed);
+	}
+	else
+	{
+		UE_LOG(LogLlamaRunner, Error, TEXT("Failed to reinitialize sampler with new seed"));
+	}
+}
+
 int32 FLlamaModelState::GetContextTokensUsed() const
 {
 	if (!Context)
@@ -778,10 +800,19 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 			});
 	};
 
-	if (FString Response = ModelState->Generate(WarningCallback); 
-		!Response.IsEmpty())
+	const double StartTime = FPlatformTime::Seconds();
+	FString Response = ModelState->Generate(WarningCallback);
+	const double EndTime = FPlatformTime::Seconds();
+	const double InferenceTimeSeconds = EndTime - StartTime;
+
+	if (!Response.IsEmpty())
 	{
 		ModelState->AddChatAndFormat(Assistant, Response);
+
+		// Write timing to file
+		const FString TimingLine = FString::Printf(TEXT("%.2f\n"), InferenceTimeSeconds);
+		const FString TimingsFilePath = FPaths::ProjectDir() / TEXT("timings.txt");
+		FFileHelper::SaveStringToFile(TimingLine, *TimingsFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_Append);
 
 		AsyncTask(ENamedThreads::GameThread,
 		          [Owner = Owner, Response, RequestId = Command.RequestId]
@@ -789,6 +820,7 @@ void FLlamaInferenceThread::ProcessContinueChat(const FLlamaCommand& Command)
 			          if (Owner)
 			          {
 				          Owner->OnInferenceComplete.Broadcast(Response);
+				          Owner->OnInferenceTimingCaptured.Broadcast();
 				          Owner->LastRequestId = RequestId;
 			          }
 		          });
@@ -879,7 +911,7 @@ void FLlamaInferenceThread::ProcessSwitchCharacter(const FLlamaCommand& Command)
 	}
 }
 
-void FLlamaInferenceThread::ProcessClearHistory([[maybe_unused]] const FLlamaCommand& Command)
+void FLlamaInferenceThread::ProcessClearHistory(const FLlamaCommand& Command)
 {
 	if (!ModelState || !ModelState->IsValid())
 	{
@@ -888,10 +920,20 @@ void FLlamaInferenceThread::ProcessClearHistory([[maybe_unused]] const FLlamaCom
 
 	ModelState->ClearMessages();
 	ModelState->ClearCache();
-	ModelState->ResetSampler();
+
+	if (Command.bReseedOnClear)
+	{
+		ModelState->ReinitializeSamplerWithNewSeed();
+	}
+	else
+	{
+		ModelState->ResetSampler();
+	}
+
 	bHasActiveConversation = false;
 
-	UE_LOG(LogLlamaRunner, Display, TEXT("Chat history cleared"));
+	UE_LOG(LogLlamaRunner, Display, TEXT("Chat history cleared (reseed: %s)"),
+		Command.bReseedOnClear ? TEXT("true") : TEXT("false"));
 }
 
 uint32 FLlamaInferenceThread::QueueCommand(const FLlamaCommand& Command)
@@ -988,7 +1030,7 @@ void ULlamaCppSubsystem::SwitchCharacter(
 	       TEXT("Queued character switch request %u"), RequestId);
 }
 
-void ULlamaCppSubsystem::ClearChatHistory() const
+void ULlamaCppSubsystem::ClearChatHistory(const bool bReseed) const
 {
 	if (!InferenceThread)
 	{
@@ -997,6 +1039,7 @@ void ULlamaCppSubsystem::ClearChatHistory() const
 
 	FLlamaCommand Command;
 	Command.Type = ELlamaCommandType::ClearHistory;
+	Command.bReseedOnClear = bReseed;
 
 	InferenceThread->QueueCommand(Command);
 }

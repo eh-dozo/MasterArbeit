@@ -1,0 +1,130 @@
+# =============================================================================
+# Unreal Engine 5 .clang-format Configuration
+# Based on Epic Games' C++ Coding Standard
+# Sources: TensorWorks/UE-Clang-Format, Epic official docs, community configs
+# Minimum clang-format version: 14 (recommended: 16+)
+# =============================================================================
+
+# -- UE Macro Handling (CRITICAL) --
+StatementMacros:
+  - 'UPROPERTY'
+  - 'UFUNCTION'
+  - 'UCLASS'
+  - 'USTRUCT'
+  - 'UENUM'
+  - 'UINTERFACE'
+  - 'UMETA'
+  - 'GENERATED_BODY'
+  - 'GENERATED_UCLASS_BODY'
+  - 'GENERATED_USTRUCT_BODY'
+
+StatementAttributeLikeMacros:
+  - 'UCLASS'
+  - 'USTRUCT'
+  - 'UENUM'
+  - 'UINTERFACE'
+
+# -- Base Style --
+Language: Cpp
+BasedOnStyle: LLVM
+
+# -- Indentation: Tabs, 4-wide (Epic standard) --
+UseTab: Always
+TabWidth: 4
+IndentWidth: 4
+ContinuationIndentWidth: 4
+ConstructorInitializerIndentWidth: 4
+
+AccessModifierOffset: -4
+
+# -- Brace Style: Allman (Epic standard) --
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# -- Line Length --
+ColumnLimit: 120
+
+# -- Alignment --
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Left
+AlignOperands: DontAlign
+AlignTrailingComments: true
+
+# -- Short Forms --
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+AllowAllParametersOfDeclarationOnNextLine: true
+
+# -- Breaking --
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: AfterColon
+BreakStringLiterals: false
+AlwaysBreakTemplateDeclarations: Yes
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+# -- Indentation Details --
+IndentCaseLabels: true
+IndentCaseBlocks: false
+IndentPPDirectives: BeforeHash
+IndentWrappedFunctionNames: false
+NamespaceIndentation: All
+
+# -- Spacing --
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesBeforeTrailingComments: 2
+SpaceBeforeCaseColon: false
+
+# -- Pointer/Reference Alignment: Left (Epic standard: int* Ptr) --
+PointerAlignment: Left
+DerivePointerAlignment: false
+
+# -- Include Sorting: Disabled for UHT compatibility --
+SortIncludes: Never
+
+# -- Other --
+Cpp11BracedListStyle: false
+EmptyLineBeforeAccessModifier: LogicalBlock
+FixNamespaceComments: true
+MaxEmptyLinesToKeep: 1
+ReflowComments: true
+SortUsingDeclarations: true
+Standard: Latest
+BinPackArguments: true
+BinPackParameters: true
+CompactNamespaces: false

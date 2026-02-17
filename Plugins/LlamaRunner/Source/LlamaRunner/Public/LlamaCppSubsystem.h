@@ -54,6 +54,7 @@ struct FLlamaCommand
 	FString SystemPrompt;
 	TArray<FChatMessage> FewShotExamples;
 	uint32 RequestId; // for tracking
+	bool bReseedOnClear = false; // for ClearHistory command
 };
 
 class FLlamaModelState
@@ -78,6 +79,7 @@ public:
 	FString Generate(const FContextWarningCallback& WarningCallback = nullptr) const;
 	void ClearCache();
 	void ResetSampler() const;
+	void ReinitializeSamplerWithNewSeed();
 
 	// Context monitoring functions
 	int32 GetContextTokensUsed() const;
@@ -91,12 +93,14 @@ public:
 	size_t GetMessageCount() const { return CommonMessages->size(); }
 
 private:
-	const uint32 InitialSamplerSeed = []
+	static uint32 GenerateNewSeed()
 	{
 		const uint32 TimeSeed = FDateTime::Now().GetTicks() & 0xFFFFFFFF;
 		const uint32 RandomComponent = FMath::Rand();
 		return TimeSeed ^ RandomComponent;
-	}();
+	}
+
+	uint32 CurrentSamplerSeed = GenerateNewSeed();
 
 	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
 	
@@ -175,6 +179,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
 	int32, TokensRemaining
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInferenceTimingCapturedDelegate);
+
 /**
  * 
  */
@@ -195,6 +201,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
 	FOnContextErrorDelegate OnContextError;
+
+	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
+	FOnInferenceTimingCapturedDelegate OnInferenceTimingCaptured;
 
 private:
 	llama_model_ptr Model;
@@ -224,7 +233,7 @@ public:
 		const FString& InitialUserPrompt);
 
 	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
-	void ClearChatHistory() const;
+	void ClearChatHistory(bool bReseed = false) const;
 
 	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
 	bool IsProcessing() const;
