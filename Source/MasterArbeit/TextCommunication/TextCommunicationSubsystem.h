@@ -148,9 +148,10 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const FCharacterChatMessage&,
                                             CharacterChatMessageWrapper);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChatMessagesCleared);
 
 /**
- * 
+ *
  */
 UCLASS(Blueprintable, Category="TextCommunication")
 class MASTERARBEIT_API UTextCommunicationSubsystem : public UGameInstanceSubsystem
@@ -161,6 +162,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="TextCommunication")
 	FOnNewCharacterChatMessage OnNewCharacterChatMessage;
 
+	UPROPERTY(BlueprintAssignable, Category="TextCommunication")
+	FOnChatMessagesCleared OnChatMessagesCleared;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="TextCommunication",
 		meta=(RequiredAssetDataTags="RowStructure=/Script/MasterArbeit.FCharacterChatMessageTableRow"))
 	UDataTable* CharacterChatMessages;
@@ -170,6 +174,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="TextCommunication")
 	void AddCharacterChatMessage(FCharacterChatMessage CharacterChatMessage, bool bBroadcast = true);
+
+	UFUNCTION(BlueprintCallable, Category="TextCommunication")
+	void ClearChatMessages(bool bReextractFewShots = true);
 
 private:
 	void ExtractFewShotDialogsFromSystemPrompt(const class USystemPromptDataAsset* SystemPromptAsset,

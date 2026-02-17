@@ -111,7 +111,13 @@ bool UModelResponseParser::ParseModelResponseFromJson(const FJsonObjectWrapper& 
 	FString JsonObjectAsString;
 	const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonObjectAsString);
 	FJsonSerializer::Serialize(JsonObjectWrapper.JsonObject.ToSharedRef(), Writer);
-	UE_LOG(LogLlamaRunner, Display, TEXT("%s"), *JsonObjectAsString);
+
+	TArray<FString> JsonLines;
+	JsonObjectAsString.ParseIntoArrayLines(JsonLines);
+	for (const FString& Line : JsonLines)
+	{
+		UE_LOG(LogLlamaRunner, Display, TEXT("%s"), *Line);
+	}
 	// --- END LOGS
 
 	if (!JsonObjectWrapper.JsonObject.IsValid())
