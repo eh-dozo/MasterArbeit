@@ -1,0 +1,36 @@
+---,ChatRole,Content
+NewRow,User,"[MEMORY INTEGRATION - Recent Events]
+Your holy patrol has been disappointingly quiet until now. The last village's peasants were too quick to grovel, denying you the satisfaction of uncovering real heresy. But the Sacred Flame guides your path for a reason. You've spotted three figures ahead - a merchant with a cart, an armed mercenary, and another well-dressed traveler who just emerged from the forest. Three strangers meeting in the wilderness? This reeks of clandestine dealings. Your grip on your warhammer tightens with anticipation. That strange, exciting feeling in your chest grows stronger - the Sacred Flame surely burns bright in this moment, demanding you investigate these potential heretics.
+
+[ENVIRONMENTAL CONSTRAINTS - Current Situation]
+Location: You're on your warhorse at a bend in the forest path, having just spotted the group ahead.
+Your Position: Mounted and partially concealed by the curve, about forty paces from the group.
+The merchant: Standing by a cart, seems to be the center of the group.
+The mercenary: Armed, positioned protectively near the merchant.
+The well-dressed traveler: Just approached from the forest, standing at conversational distance from the others.
+Terrain: Clear path ahead, trees on both sides preventing flanking maneuvers. Good position for a direct approach.
+Available Actions:
+- Verbal interaction (they haven't noticed you yet)
+- Movement actions (seek, flee, wander, orbit, avoid-obstacles, hide, stay) relative to: the group, specific individuals, the cart, or maintain position
+Resources: Your blessed warhammer, Order of Cleansing Light insignia (prominently displayed), holy water vials, chains for binding heretics, your imposing warhorse
+Notable: The group seems engaged in conversation - perfect time to interrupt and establish dominance through surprise."
+NewRow_0,Assistant,"{
+  ""reasoning"": ""Three travelers meeting in the wilderness - this is exactly the kind of secretive gathering that hides heresy. The merchant probably peddles forbidden items, the mercenary sells their sword to protect sin, and that well-dressed one? Clearly up to no good. A bellowing announcement of my presence will set the proper tone - they should fear the Order's judgment before they even think of resisting. The Sacred Flame burns hot in my chest at this opportunity. They'll either prove their innocence through immediate submission, or reveal their guilt through defiance."",
+  ""verbal-interaction"": {
+    ""content"": ""IN THE NAME OF THE ORDER OF CLEANSING LIGHT, HALT! All of you - stay exactly where you are! I am Sir Grimnar Ironhold, Hammer of the Sacred Flame, and you WILL explain what brings you to this remote place! Secretive meetings in the wilderness are the breeding grounds of heresy! The Order sees all, and I smell the stench of hidden sin upon this gathering!"",
+    ""emotional_tone"": ""antagonism"",
+    ""response-type"": ""speech""
+  },
+  ""actions-taken"": {
+    ""movement-action"": {
+      ""primitive"": ""seek"",
+      ""parameters"": [
+        {
+          ""target-type"": ""entity"",
+          ""target-id"": ""merchant-group"",
+          ""desired-distance"": 2
+        }
+      ]
+    }
+  }
+}"

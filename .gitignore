@@ -72,3 +72,13 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+Content/Skytown/*
+
+Content/__ExternalActors__/*
+Content/__ExternalObjects__/*
+Content/Fab/*
+Content/MWLandscapeAutoMaterial/*
+Content/Top-Down_Shadow/*
+Content/EuropeanHornBeam02/*
+Content/MSPresets/*
+Content/PC3D_Kentucky_Bluegrass_v14/*

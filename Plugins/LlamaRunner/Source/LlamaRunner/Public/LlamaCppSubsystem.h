@@ -5,180 +5,205 @@
 //THIRD_PARTY_INCLUDES_START
 #include "llama.h"
 #include "llama-cpp.h"
+#include  "common.h"
 //THIRD_PARTY_INCLUDES_END
 #include "CoreMinimal.h"
+#include "chat.h"
+#include "LlamaRunnerSettings.h"
+#include "sampling.h"
+#include "Containers/Map.h"
+#include "Containers/UnrealString.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "LlamaCppSubsystem.generated.h"
 
-UENUM(meta=(ToolTip=
-	"Traditionnal decoding refer to Top-P and Top-K sampling, the other methods are self-explanatory"
-))
-enum ELlamaDecodingMethod
-{
-	Traditional,
-	MinP
-};
+LLAMARUNNER_API DECLARE_LOG_CATEGORY_EXTERN(LogLlamaRunner, Log, All);
 
-UENUM()
-enum ELlamaSamplerMethod
+UENUM(BlueprintType)
+enum EChatRole
 {
-	Greedy,
-	Dist,
-	Mirostat
+	System,
+	User,
+	Assistant
 };
 
 USTRUCT(BlueprintType)
-struct FLamaCppSubsystemCommonConfig
+struct FChatMessage : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner")
-	FFilePath ModelPath = FFilePath("");
+	TEnumAsByte<EChatRole> ChatRole = System;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		ClampMin="-1",
-		ClampMax="8192",
-		ToolTip="WARNING: should be a power of 2"))
-	int32 ContextSize = -1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		ClampMin="-1",
-		ClampMax="8192",
-		ToolTip="WARNING: should be a power of 2"))
-	int32 Batches = -1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		ClampMin="-1",
-		ClampMax="99",
-		ToolTip="WARNING: be carefull with your hardware, high values will require more GPU"))
-	int32 GraphicalLayers = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(MultiLine))
+	FString Content;
 };
 
-USTRUCT(BlueprintType)
-struct FLlamaCppSubsystemSamplerConfig
+UENUM(BlueprintType)
+enum class ELlamaCommandType : uint8
 {
-	GENERATED_BODY()
+	ContinueChat,
+	SwitchCharacter,
+	ClearHistory,
+	Shutdown
+};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner")
-	FFilePath GrammarPath = FFilePath("");
+struct FLlamaCommand
+{
+	ELlamaCommandType Type;
+	FString UserPrompt;
+	FString SystemPrompt;
+	TArray<FChatMessage> FewShotExamples;
+	uint32 RequestId;            // calls-tracking
+	bool bReseedOnClear = false; // used for ClearHistory
+};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		ToolTip="WARNING: Greedy will attempt to output the largest response possible, which might not always be ideal!"))
-	TEnumAsByte<ELlamaSamplerMethod> SamplerMethod = Dist;
+class FLlamaModelState
+{
+public:
+	FLlamaModelState();
+	~FLlamaModelState();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="SamplerMethod!=ELlamaSamplerMethod::Mirostat"))
-	TEnumAsByte<ELlamaDecodingMethod> DecodingMethod = ELlamaDecodingMethod::MinP;
+	bool Initialize();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		ClampMin="0",
-		ClampMax="2"))
-	float Temperature = 0.8f;
+	void InitializeCommonParams();
+	common_params_sampling InitializeSamplerParams() const;
+	void InitializeThreadPools();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="DecodingMethod==ELlamaDecodingMethod::MinP && SamplerMethod!=ELlamaSamplerMethod::Mirostat",
-		ClampMin="0.0",
-		ClampMax="1.0",
-		ToolTip=
-		"Note: a value of 0 disables min-p filtering (considers all tokens) and a value of 1 is extremely restrictive. Recommended values usually are between 0.05 and 0.1"
-	))
-	float MinP = 0.05f;
+	void Shutdown();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition=
-		"DecodingMethod==ELlamaDecodingMethod::Traditional && SamplerMethod!=ELlamaSamplerMethod::Mirostat",
-		ClampMin="0.0",
-		ClampMax="1.0",
-		ToolTip=
-		"Note: a value of 0 disables top-p filtering and a value of 1 allows every tokens. Recommended values usually are between 0.85 and 0.95"
-	))
-	float TopP = 1.0f;
+	bool IsValid() const { return Model && Context && CommonSampler; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner",
-		DisplayName="[DEBUG] Use top-k filtering",
-		meta=(
-			EditCondition=
-			"DecodingMethod==ELlamaDecodingMethod::Traditional && SamplerMethod!=ELlamaSamplerMethod::Mirostat"))
-	bool bUseTopKFiltering = false;
+	// Callback signature for context warnings during generation
+	using FContextWarningCallback = TFunction<void(int32 TokensUsed, int32 TokensTotal, float UsagePercent)>;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition=
-		"bUseTopKFiltering && DecodingMethod==ELlamaDecodingMethod::Traditional && SamplerMethod!=ELlamaSamplerMethod::Mirostat"
-		,
-		ClampMin="0",
-		ClampMax="1000",
-		ToolTip=
-		"Note: since any models has its own vocabulary length, max is arbitrarly set to 1000. A value of 0 disables top-k filtering (considers all tokens) and a value of n allows all top n tokens in the vocabulary. Recommended values usually are between 35 and 50. Using top-k is nowadays not recommended anymore."
-	))
-	int32 TopK = 0;
+	FString Generate(const FContextWarningCallback& WarningCallback = nullptr) const;
+	void ClearCache();
+	void ResetSampler() const;
+	void ReinitializeSamplerWithNewSeed();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition=
-		"SamplerMethod==ELlamaSamplerMethod::Mirostat",
-		ClampMin="0.1",
-		ClampMax="10",
-		ToolTip=
-		"Note: A higher value corresponds to more surprising or less predictable text, while a lower value corresponds to less surprising or more predictable text."
-	))
-	float Tau = 5.0f;
+	// Context monitoring functions
+	int32 GetContextTokensUsed() const;
+	int32 GetContextTokensTotal() const { return N_Ctx; }
+	int32 GetContextTokensRemaining() const;
+	float GetContextUsagePercent() const;
+	bool CanFitTokens(int32 TokenCount, int32 MinGenerationBuffer = 512) const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition=
-		"SamplerMethod==ELlamaSamplerMethod::Mirostat",
-		ClampMin="0.05",
-		ClampMax="0.2",
-		ToolTip=
-		"Note: Eta is very sensitive, controls the perplexity. Not many documentation can be found on it, so the range is arbitrary based on online reviews."
-	))
-	float Eta = 0.1f;
+	void ClearMessages() const { CommonMessages->clear(); }
+	void AddChatAndFormat(EChatRole Role, const FString& Content) const;
+	size_t GetMessageCount() const { return CommonMessages->size(); }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", DisplayName="Use repetition penalty")
-	bool bUseRepetitionPenalty = false;
+private:
+	static uint32 GenerateNewSeed()
+	{
+		const uint32 TimeSeed = FDateTime::Now().GetTicks() & 0xFFFFFFFF;
+		const uint32 RandomComponent = FMath::Rand();
+		return TimeSeed ^ RandomComponent;
+	}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="bUseRepetitionPenalty",
-		ClampMin="-1",
-		ClampMax="1000"))
-	int32 PenaltyLastN = 64;
+	uint32 CurrentSamplerSeed = GenerateNewSeed();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="bUseRepetitionPenalty",
-		ClampMin="1.0",
-		ClampMax="1.2"))
-	float PenaltyRepeat = 1.1f;
+	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="bUseRepetitionPenalty",
-		ClampMin="1.0",
-		ClampMax="1.2"))
-	float PenaltyFrequency = 0.0f;
+	llama_model_ptr Model = nullptr;
+	llama_context_ptr Context = nullptr;
+	common_sampler* CommonSampler = nullptr;
+	common_params* CommonParams = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LlamaRunner", meta=(
-		EditCondition="bUseRepetitionPenalty",
-		ClampMin="1.0",
-		ClampMax="1.2"))
-	float PenaltyPresent = 0.0f;
+	ggml_threadpool* ThreadPool = nullptr;
+	ggml_threadpool* ThreadPoolBatch = nullptr;
+
+	std::vector<common_chat_msg>* CommonMessages = nullptr;
+
+	std::vector<llama_token> SessionTokens;
+	int32 SessionTokensConsumed = 0;
+	int32 N_Ctx;
+
+	friend class FLlamaInferenceThread;
+};
+
+class FLlamaInferenceThread : public FRunnable
+{
+public:
+	FLlamaInferenceThread(ULlamaCppSubsystem* InOwner);
+	virtual ~FLlamaInferenceThread() override;
+
+	// FRunnable interface
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+
+	uint32 QueueCommand(const FLlamaCommand& Command);
+	bool IsProcessing() const { return bIsProcessing.load(); }
+
+private:
+	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
+
+	void ProcessContinueChat(const FLlamaCommand& Command);
+	void ProcessSwitchCharacter(const FLlamaCommand& Command);
+	void ProcessClearHistory(const FLlamaCommand& Command);
+
+	static void BindLlamaRunnerLogs();
+	void LogSamplingAndGenerationPerformances() const;
+
+	ULlamaCppSubsystem* Owner;
+
+	FRunnableThread* Thread;
+	std::atomic<bool> bShutdown;
+	std::atomic<bool> bIsProcessing;
+	FEvent* WakeUpEvent;
+
+	TQueue<FLlamaCommand, EQueueMode::Mpsc> CommandQueue;
+	std::atomic<uint32> NextRequestId;
+
+	TUniquePtr<FLlamaModelState> ModelState;
+
+	FString CurrentSystemPrompt;
+	TArray<FChatMessage> CurrentFewShots;
+	bool bHasActiveConversation = false;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInferenceCompleteDelegate, const FString&, Response);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnContextWarningDelegate,
+	int32, TokensUsed,
+	int32, TokensTotal,
+	float, UsagePercent
+	);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+	FOnContextErrorDelegate,
+	int32, TokensUsed,
+	int32, TokensTotal,
+	int32, TokensRemaining
+	);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInferenceTimingCapturedDelegate);
+
 /**
  * 
  */
-UCLASS(Abstract, Blueprintable)
+UCLASS()
 class LLAMARUNNER_API ULlamaCppSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="LlamaRunner")
-	FLamaCppSubsystemCommonConfig CommonConfig;
+	UPROPERTY()
+	const UDSLlamaRunnerSettings* GeneralSettings = GetDefault<UDSLlamaRunnerSettings>();
 
-	UPROPERTY(EditAnywhere, BlueprintSetter=SetSamplerConfig, Category="LlamaRunner")
-	FLlamaCppSubsystemSamplerConfig SamplerConfig;
-	
 	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
 	FOnInferenceCompleteDelegate OnInferenceComplete;
+
+	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
+	FOnContextWarningDelegate OnContextWarning;
+
+	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
+	FOnContextErrorDelegate OnContextError;
+
+	UPROPERTY(BlueprintAssignable, Category = "LlamaRunner")
+	FOnInferenceTimingCapturedDelegate OnInferenceTimingCaptured;
 
 private:
 	llama_model_ptr Model;
@@ -196,15 +221,27 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
-	void AsyncProcessUserPrompt(const FString& UserPrompt, const FString& SystemPrompt);
+	UFUNCTION(BlueprintCallable, Category="LlamaRunner",
+		meta=(DisplayName="Continue Conversation"))
+	void ContinueConversation(const FString& UserPrompt) const;
+
+	UFUNCTION(BlueprintCallable, Category="LlamaRunner",
+		meta=(DisplayName="Switch Character"))
+	void SwitchCharacter(
+		const FString& SystemPrompt,
+		const TArray<FChatMessage>& FewShotExamples,
+		const FString& InitialUserPrompt);
 
 	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
-	void ClearChatHistory();
+	void ClearChatHistory(bool bReseed = false) const;
 
-	UFUNCTION(BlueprintSetter, Category="LlamaRunner")
-	void SetSamplerConfig(FLlamaCppSubsystemSamplerConfig NewConfig);
+	UFUNCTION(BlueprintCallable, Category="LlamaRunner")
+	bool IsProcessing() const;
 
 private:
-	FString Generate(const FString& Prompt);
+	TUniquePtr<FLlamaInferenceThread> InferenceThread;
+
+	std::atomic<uint32> LastRequestId;
+
+	friend class FLlamaInferenceThread;
 };

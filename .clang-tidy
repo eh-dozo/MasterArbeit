@@ -1,0 +1,282 @@
+# =============================================================================
+# .clang-tidy configuration for Unreal Engine 5.5 C++ projects
+# Optimized for JetBrains Rider integration
+# =============================================================================
+#
+# PLACEMENT: Next to your .uproject file (project root).
+# Rider (and clang-tidy generally) walks up from the source file to find the
+# closest .clang-tidy. Placing it at the project root covers all your Source/.
+#
+# PHILOSOPHY: Conservative — few false positives, catch real bugs.
+# UE5 is heavily macro-based (UPROPERTY, UFUNCTION, GENERATED_BODY, etc.)
+# and follows Epic's coding standard (PascalCase, F/U/A/E/T/I/S prefixes,
+# no STL). Many default checks conflict with these conventions.
+#
+# THIRD-PARTY EXCLUSION: clang-tidy's .clang-tidy file does not support
+# path-based exclusion natively. To exclude third-party code (e.g. llama.cpp),
+# place a separate .clang-tidy in that directory that disables all checks:
+#   Plugins/LlamaRunner/Source/ThirdParty/.clang-tidy with Checks: '-*'
+#
+# FORMATTING: Disabled entirely — your .clang-format handles formatting.
+#
+# RIDER NOTE: Rider disables clang-tidy for UE projects by default.
+# Enable it in: Settings > Languages & Frameworks > C++ > Clang-Tidy
+# Rider's bundled clang-tidy (LLVM 20.0.0) works well with this config.
+# =============================================================================
+
+---
+Checks: >
+  -*,
+
+  # =========================================================================
+  # BUGPRONE: High-value bug detection. Most checks work well with UE code.
+  # =========================================================================
+  bugprone-*,
+
+  # Disable: triggers on UE's extensive use of macros with boolean-like args
+  -bugprone-argument-comment,
+
+  # Disable: UE uses a lot of implicit bool conversions (TSharedPtr, etc.)
+  -bugprone-bool-pointer-implicit-conversion,
+
+  # Disable: UE's check()/ensure()/verify() macros trigger this constantly
+  -bugprone-assignment-in-if-condition,
+
+  # Disable: conflicts with UE FString/FName implicit conversions by design
+  -bugprone-easily-swappable-parameters,
+
+  # Disable: many false positives with UE delegate macros and lambda captures
+  -bugprone-exception-escape,
+
+  # Disable: UE intentionally forward-declares many types
+  -bugprone-forward-declaration-namespace,
+
+  # Disable: narrowing conversions are rampant in UE (int32 <-> float, etc.)
+  # Epic's own builds suppress these. Use NOLINT sparingly if you re-enable.
+  -bugprone-narrowing-conversions,
+
+  # Disable: signals noise on UE's Signal/Slot patterns
+  -bugprone-signal-handler,
+
+  # =========================================================================
+  # PERFORMANCE: Almost all checks are useful for game code.
+  # =========================================================================
+  performance-*,
+
+  # Disable: UE avoids std::move — use MoveTemp() instead.
+  # This check suggests std::move which breaks UE conventions.
+  -performance-move-const-arg,
+
+  # Disable: UE containers (TArray, TMap) don't always support emplace
+  # in the same way STL does; this produces misleading suggestions.
+  -performance-inefficient-vector-operation,
+
+  # =========================================================================
+  # READABILITY: Selective — many checks conflict with UE conventions.
+  # =========================================================================
+  readability-avoid-const-params-in-decls,
+  readability-braces-around-statements,
+  readability-const-return-type,
+  readability-container-size-empty,
+  readability-delete-null-pointer,
+  readability-duplicate-include,
+  readability-else-after-return,
+  readability-function-cognitive-complexity,
+  readability-implicit-bool-conversion,
+  readability-inconsistent-declaration-parameter-name,
+  readability-misleading-indentation,
+  readability-misplaced-array-index,
+  readability-non-const-parameter,
+  readability-qualified-auto,
+  readability-redundant-control-flow,
+  readability-redundant-declaration,
+  readability-redundant-function-ptr-dereference,
+  readability-redundant-preprocessor,
+  readability-redundant-smartptr-get,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-simplify-boolean-expr,
+  readability-simplify-subscript-expr,
+  readability-static-accessed-through-instance,
+  readability-static-definition-in-anonymous-namespace,
+  readability-string-compare,
+  readability-uniqueptr-delete-release,
+
+  # NOT enabled from readability-*:
+  # -readability-identifier-naming           : UE has its own naming (F/U/A/E/T/I/S prefixes).
+  #                                            Rider handles UE naming natively — far better.
+  # -readability-identifier-length           : UE uses short names (e.g. PC, GI) by convention.
+  # -readability-magic-numbers               : Extremely noisy in game code (physics, UI, etc.)
+  # -readability-uppercase-literal-suffix    : UE code uses 0.0f, 1.0f everywhere; not worth enforcing.
+  # -readability-use-anyofallof              : Suggests STL algorithms; UE uses Algo:: namespace.
+  # -readability-convert-member-functions-to-static : Conflicts with UFUNCTION requirements.
+  # -readability-function-size               : UE functions (especially in GAS) are legitimately large.
+  # -readability-isolate-declaration         : Clashes with common UE patterns.
+  # -readability-make-member-function-const  : Many UE functions can't be const due to UFUNCTION constraints.
+  # -readability-named-parameter             : UE delegate macros generate unnamed params.
+  # -readability-suspicious-call-argument    : Too many false positives with UE APIs.
+
+  # =========================================================================
+  # MODERNIZE: Selective — UE5 targets C++17 but many modernize suggestions
+  # conflict with UE conventions or macro-generated code.
+  # =========================================================================
+  modernize-avoid-bind,
+  modernize-concat-nested-namespaces,
+  modernize-deprecated-headers,
+  modernize-deprecated-ios-base-aliases,
+  modernize-loop-convert,
+  modernize-make-shared,
+  modernize-make-unique,
+  modernize-raw-string-literal,
+  modernize-redundant-void-arg,
+  modernize-replace-random-shuffle,
+  modernize-shrink-to-fit,
+  modernize-use-bool-literals,
+  modernize-use-default-member-init,
+  modernize-use-emplace,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-nodiscard,
+  modernize-use-noexcept,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-using,
+
+  # NOT enabled from modernize-*:
+  # -modernize-avoid-c-arrays              : UE uses C-style arrays in many places (replicated props, etc.)
+  # -modernize-pass-by-value               : Conflicts with UE's FString/const FString& conventions.
+  # -modernize-return-braced-init-list      : Harms readability with UE types.
+  # -modernize-use-auto                     : UE coding standard prefers explicit types.
+  # -modernize-use-trailing-return-type     : UFUNCTION doesn't support trailing return; Epic forbids it.
+  # -modernize-replace-auto-ptr             : No auto_ptr in UE code.
+  # -modernize-use-transparent-functors     : Not applicable — UE doesn't use STL functors.
+  # -modernize-macro-to-enum               : Would flag UE macros like LOG_CATEGORY, STAT groups, etc.
+
+  # =========================================================================
+  # CPPCOREGUIDELINES: Very selective. Most conflict with UE patterns.
+  # =========================================================================
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-interfaces-global-init,
+  cppcoreguidelines-macro-usage,
+  cppcoreguidelines-no-malloc,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-pro-type-static-cast-downcast,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-virtual-class-destructor,
+
+  # NOT enabled from cppcoreguidelines-*:
+  # -cppcoreguidelines-avoid-magic-numbers      : Alias of readability-magic-numbers; too noisy for game code.
+  # -cppcoreguidelines-avoid-non-const-global-variables : UE uses global variables extensively
+  #                                                       (subsystems, singletons, log categories).
+  # -cppcoreguidelines-narrowing-conversions     : Alias of bugprone-narrowing-conversions; too noisy.
+  # -cppcoreguidelines-owning-memory             : UE uses its own GC, not GSL owner<T>.
+  # -cppcoreguidelines-pro-bounds-*              : UE uses raw array access extensively.
+  # -cppcoreguidelines-pro-type-member-init      : Conflicts with UPROPERTY initialization patterns.
+  #                                                UPROPERTY fields are often initialized in constructors
+  #                                                or via CDO, not in-class. Too many false positives.
+  # -cppcoreguidelines-pro-type-union-access     : UE uses unions in low-level code.
+  # -cppcoreguidelines-pro-type-reinterpret-cast : UE serialization needs reinterpret_cast.
+  # -cppcoreguidelines-pro-type-vararg           : UE uses varargs (UE_LOG, FString::Printf, etc.)
+  # -cppcoreguidelines-special-member-functions  : UE macro-generated classes violate rule-of-five.
+  # -cppcoreguidelines-avoid-goto                : Rare in UE but used in engine code legitimately.
+  # -cppcoreguidelines-avoid-do-while            : Used in UE macros.
+
+  # =========================================================================
+  # MISC: Selective — some useful checks, many problematic.
+  # =========================================================================
+  misc-definitions-in-headers,
+  misc-misplaced-const,
+  misc-redundant-expression,
+  misc-static-assert,
+  misc-throw-by-value-catch-by-reference,
+  misc-unconventional-assign-operator,
+  misc-uniqueptr-reset-release,
+  misc-unused-alias-decls,
+  misc-unused-parameters,
+  misc-unused-using-decls,
+
+  # NOT enabled from misc-*:
+  # -misc-non-private-member-variables-in-classes : UE USTRUCT and UCLASS with UPROPERTY
+  #                                                 require public member variables.
+  # -misc-no-recursion                            : Legitimate recursion exists in UE (scene graphs, etc.)
+  # -misc-use-anonymous-namespace                 : Can cause issues with UE's module system.
+  #                                                 Known to cause exceptions in some UE code.
+  # -misc-include-cleaner                         : Conflicts with UE's generated header include requirements
+  #                                                 (.generated.h must be last, etc.)
+  # -misc-header-include-cycle                    : UE's include structure has intentional cycles.
+  # -misc-const-correctness                       : Too aggressive; flags variables modified through
+  #                                                 UE macros or passed to functions by non-const ref.
+
+  # =========================================================================
+  # CLANG-ANALYZER: Disabled entirely for performance.
+  # Enabling static analyzer checks significantly slows down clang-tidy.
+  # Rider's docs explicitly note these are disabled by default.
+  # Run the static analyzer separately in CI if desired.
+  # =========================================================================
+  -clang-analyzer-*,
+
+  # =========================================================================
+  # FORMATTING & STYLE: Disabled — .clang-format handles formatting.
+  # =========================================================================
+  -google-*,
+  -llvm-*,
+  -fuchsia-*,
+  -abseil-*,
+  -android-*,
+  -altera-*,
+  -boost-*,
+  -cert-*,
+  -darwin-*,
+  -hicpp-*,
+  -linuxkernel-*,
+  -llvmlibc-*,
+  -mpi-*,
+  -objc-*,
+  -openmp-*,
+  -portability-*,
+  -zircon-*,
+  -concurrency-*,
+
+CheckOptions:
+  # Cognitive complexity threshold — UE functions tend to be complex.
+  # Default is 25; we raise slightly for game logic / GAS / StateTree code.
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: '50'
+
+  # Ignore public member variables — required for UPROPERTY in USTRUCT/UCLASS.
+  - key:   misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
+    value: 'true'
+
+  # Allow macros with ALL_CAPS names (UE convention for many macros).
+  - key:   cppcoreguidelines-macro-usage.AllowedRegexp
+    value: '^[A-Z_]+$'
+
+  # Modernize-loop-convert: be conservative about converting loops.
+  - key:   modernize-loop-convert.MinConfidence
+    value: 'reasonable'
+
+  # Use-default-member-init: prefer = over braces for consistency with UE style.
+  - key:   modernize-use-default-member-init.UseAssignment
+    value: 'true'
+
+  # Braces: require braces even on single-line if/for/while (Epic style).
+  - key:   readability-braces-around-statements.ShortStatementLines
+    value: '0'
+
+  # Bool conversion: allow pointer-to-bool (UE uses this constantly with TSharedPtr, etc.)
+  - key:   readability-implicit-bool-conversion.AllowPointerConditions
+    value: 'true'
+
+  # Bool conversion: also allow integer-to-bool (UE uses int32 as bool in some APIs)
+  - key:   readability-implicit-bool-conversion.AllowIntegerConditions
+    value: 'true'
+
+  # Init variables: use zero-initialization (UE convention).
+  - key:   cppcoreguidelines-init-variables.IncludeStyle
+    value: 'llvm'
+
+# FormatStyle: Use the project's .clang-format file for any auto-fix formatting.
+FormatStyle: file
+
+# Keep a blank line at end of file (required for some parsers).
+

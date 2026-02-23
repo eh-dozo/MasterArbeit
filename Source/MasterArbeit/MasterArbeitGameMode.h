@@ -3,17 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "MasterArbeitGameMode.generated.h"
 
 UCLASS(minimalapi)
-class AMasterArbeitGameMode : public AGameModeBase
+class AMasterArbeitGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
 public:
 	AMasterArbeitGameMode();
 };
-
-
-

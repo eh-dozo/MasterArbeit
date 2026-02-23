@@ -2,16 +2,10 @@
 
 #define LOCTEXT_NAMESPACE "FTurnBasedCombatSystemModule"
 
-void FTurnBasedCombatSystemModule::StartupModule()
-{
-    
-}
+void FTurnBasedCombatSystemModule::StartupModule() {}
 
-void FTurnBasedCombatSystemModule::ShutdownModule()
-{
-    
-}
+void FTurnBasedCombatSystemModule::ShutdownModule() {}
 
 #undef LOCTEXT_NAMESPACE
-    
+
 IMPLEMENT_MODULE(FTurnBasedCombatSystemModule, TurnBasedCombatSystem)

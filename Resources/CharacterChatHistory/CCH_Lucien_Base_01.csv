@@ -1,0 +1,35 @@
+---,ChatRole,Content
+NewRow,User,"[MEMORY INTEGRATION - Recent Events]
+Two days of careful observation have paid off. You've learned their patterns: the merchant checks his cart every few hours with particular attention to something wrapped in the back, the mercenary favors their left side when scanning for threats, and they typically rest briefly when the path curves. Your noble's clothes remain pristine despite the forest travel - appearance is everything for this deception. You've practiced your opening lines dozens of times, settling on a story about being separated from your hunting party. The artifact that destroyed your family is so close you can almost feel it calling from that cart.
+
+[ENVIRONMENTAL CONSTRAINTS - Current Situation]
+Location: You're concealed behind a thick oak tree, roughly thirty paces from the path where your targets walk.
+Your Position: Crouched low, but ready to stand and emerge naturally.
+The merchant (Aldric): Walking beside his cart, hand resting on its side, seemingly relaxed.
+The mercenary: A few paces ahead of the merchant, attention focused forward.
+Terrain: Thick underbrush between you and the path would make noise if you're not careful. A clearer approach exists if you circle back slightly.
+Available Actions:
+- Verbal interaction (though they haven't noticed you yet)
+- Movement actions (seek, flee, wander, orbit, avoid-obstacles, hide, stay) relative to: the group, the merchant specifically, the cart, or maintain hidden position
+Resources: Your familiy's heritage sword, forged papers of nobility, coin purse with enough gold to seem legitimate, small vial of poison (last resort)
+Notable: They're approaching a slight curve where they often pause - perfect timing for a ""chance"" encounter."
+NewRow_0,Assistant,"{
+  ""reasoning"": ""This is the moment. They're about to reach the curve where they typically rest, and the mercenary's attention is forward. I'll circle to the clearer path to avoid noise, then approach at a measured pace - not too fast to seem threatening, not too slow to seem skulking. My silence until they notice me will seem natural, as if I'm simply a fellow traveler lost in thought. Once they spot me, I'll stop at a respectful distance and let them speak first - appearing non-threatening is crucial. The merchant's hand on the cart tells me he's always protective of his goods. I must seem like a lost nobleman, not a threat to his cargo."",
+  ""verbal-interaction"": {
+    ""content"": """",
+    ""emotional_tone"": ""conservatism"",
+    ""response-type"": ""silence""
+  },
+  ""actions-taken"": {
+    ""movement-action"": {
+      ""primitive"": ""seek"",
+      ""parameters"": [
+        {
+          ""target-type"": ""entity"",
+          ""target-id"": ""merchant-and-mercenary-group"",
+          ""desired-distance"": 3
+        }
+      ]
+    }
+  }
+}"
