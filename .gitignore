@@ -72,3 +72,14 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+Content/__ExternalActors__/TopDownLandscapeMaterial/Demo/
+Content/__ExternalActors__/TopDownLanscapeMaterial/
+Content/__ExternalObjects__/TopDownLandscapeMaterial/Demo/
+Content/__ExternalObjects__/TopDownLanscapeMaterial/
+Content/EuropeanHornbeam02/
+Content/Fab/Megascans/Surfaces/
+Content/MSPresets/
+Content/MWLandscapeAutoMaterial/
+Content/PC3D_Kentucky_Bluegrass_v14
+Content/Top-Down_Shadow/
