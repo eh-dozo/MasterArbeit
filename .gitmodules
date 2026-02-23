@@ -1,0 +1,3 @@
+[submodule "Plugins/LlamaRunner"]
+	path = Plugins/LlamaRunner
+	url = https://github.com/eh-dozo/LlamaRunner-vMasterArbeit
