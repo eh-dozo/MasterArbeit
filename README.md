@@ -14,7 +14,8 @@ This project was developed as part of a Master's thesis at **[HTW  Berlin](https
 | **Thesis** | *Beyond Scripted-Intelligence: Case Study of Transformer Models and Emergent Behaviors in Interactive Virtual Environments* |
 | **Programme** | International Media Informatics (M.Sc.) |
 | **Author** | Eliot Hoff |
-| **Supervisor** | Prof. Dr. Tobias Lenz |
+| **1st Supervisor** | Prof. Dr. Tobias Lenz |
+| **2nd Supervisor** | Prof. Gefei Zhang |
 | **Date** | February 2026 |
 
 The thesis investigates whether LLM-Based Game Agents can deploy on consumer hardware and produce believable
