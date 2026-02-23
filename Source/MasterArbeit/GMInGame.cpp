@@ -10,7 +10,7 @@
 #include "Tests/AutomationCommon.h"
 
 /*
- * !! WARNING !!
+ * ===!! WARNING !!===
  * IF one of the default classes BP set below are referencing the BP GM,
  * it will create a loading deadlock, because
  * -> engine is constructing the CDO for AGMInGame
@@ -18,6 +18,7 @@
  * -> HUD BP has reference to GM BP which derive from this C++
  * -> results in a loading dependency loop apparently.......
  */
+
 AGMInGame::AGMInGame(const ::FObjectInitializer& ObjectInitializer)
 {
 	DefaultPawnClass = NULL;

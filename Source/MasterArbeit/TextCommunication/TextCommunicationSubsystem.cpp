@@ -246,9 +246,10 @@ void UTextCommunicationSubsystem::AddDialogToChatMessages(const FString& DialogT
 
 	AddCharacterChatMessage(NewMessage, false);
 
-	// TODO: temp
+	#if MA_IS_VERBOSE
 	UE_LOG(LogTextCommunicationSubsystem, Display, TEXT("Added few-shot dialog to CharacterChatMessages: [%s] %s"),
 		*UEnum::GetValueAsString(CharacterName.GetValue()), *DialogText);
+	#endif
 }
 
 void UTextCommunicationSubsystem::ExtractFewShotDialogsFromSystemPrompt(

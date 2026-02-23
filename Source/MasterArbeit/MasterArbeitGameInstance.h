@@ -15,15 +15,12 @@ class MASTERARBEIT_API UMasterArbeitGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	/** Sets the participant ID for this session */
 	UFUNCTION(BlueprintCallable, Category = "Experiment")
 	void SetParticipantID(const FString& InParticipantID);
 
-	/** Gets the participant ID for this session */
 	UFUNCTION(BlueprintPure, Category = "Experiment")
 	FString GetParticipantID() const { return ParticipantID; }
 
-	/** Returns true if a participant ID has been set */
 	UFUNCTION(BlueprintPure, Category = "Experiment")
 	bool HasParticipantID() const { return bHasParticipantID; }
 

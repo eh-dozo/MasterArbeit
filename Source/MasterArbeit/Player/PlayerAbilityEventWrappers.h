@@ -15,9 +15,6 @@ struct FPlayerAbilityMovementPayload
 	FVector TargetLocation;
 };
 
-/**
- * 
- */
 UCLASS(Blueprintable, Category="Player | AbilityPayload")
 class MASTERARBEIT_API UPlayerAbilityMovementPayloadWrapper : public UObject
 {

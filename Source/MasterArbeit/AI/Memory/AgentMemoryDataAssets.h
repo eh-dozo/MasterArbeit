@@ -6,9 +6,6 @@
 #include "Engine/DataAsset.h"
 #include "AgentMemoryDataAssets.generated.h"
 
-/**
- *
- */
 UCLASS(BlueprintType)
 class MASTERARBEIT_API USystemPromptDataAsset : public UDataAsset
 {

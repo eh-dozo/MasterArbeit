@@ -11,7 +11,8 @@
 class AAIController;
 
 /**
- * 
+ * (UNUSED): wanted to have a custom StateTree schema which would have allowed to have defaults parameters for agents
+ * configs. But it buggy in UE5.5
  */
 UCLASS(BlueprintType, EditInlineNew, CollapseCategories,
 	meta = (DisplayName = "StateTree Llm Agent Component", CommonSchema))
@@ -37,6 +38,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Defaults", NoClear)
 	TSubclassOf<AAIController> AIControllerClass = nullptr;
 
+	/**
+	 *                           ||||||||||
+	 * (UNUSED): Here for e.g. - vvvvvvvvvv
+	 */
 	/*UPROPERTY(EditAnywhere, Category = "Defaults", NoClear)
 	USystemPromptDataAsset* SystemPromptDataAsset = nullptr;*/
 };

@@ -8,8 +8,8 @@
 #include "GMInGame.generated.h"
 
 /**
- * 
- */
+* All of the logic was moved to BP
+*/
 UCLASS()
 class MASTERARBEIT_API AGMInGame : public AGameModeBase
 {

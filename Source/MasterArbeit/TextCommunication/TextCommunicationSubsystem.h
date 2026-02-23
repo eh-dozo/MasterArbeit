@@ -147,7 +147,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewCharacterChatMessage, const FC
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChatMessagesCleared);
 
 /**
- *
+ * Handles the parsing of models JSON responses but also user chat inputs
  */
 UCLASS(Blueprintable, Category="TextCommunication")
 class MASTERARBEIT_API UTextCommunicationSubsystem : public UGameInstanceSubsystem

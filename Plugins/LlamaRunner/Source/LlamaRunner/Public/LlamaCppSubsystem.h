@@ -53,8 +53,8 @@ struct FLlamaCommand
 	FString UserPrompt;
 	FString SystemPrompt;
 	TArray<FChatMessage> FewShotExamples;
-	uint32 RequestId;            // for tracking
-	bool bReseedOnClear = false; // for ClearHistory command
+	uint32 RequestId;            // calls-tracking
+	bool bReseedOnClear = false; // used for ClearHistory
 };
 
 class FLlamaModelState

@@ -17,15 +17,12 @@ UStateTreeLlmAgentComponentSchema::UStateTreeLlmAgentComponentSchema(const FObje
 	ContextDataDescs[0].Struct = ContextActorClass.Get();
 	ContextDataDescs.Emplace(TEXT("AIController"), AIControllerClass.Get(),
 		FGuid(0x0D409243, 0x424A1026, 0x22F68B81, 0x16CCAEF1));
-	/*ContextDataDescs.Emplace(TEXT("SystemPrompt"), USystemPromptDataAsset::StaticClass(),
-	                         FGuid(0x34AD4870, 0x4D3C3D1B, 0x9D8BDC8F, 0xF773733B));*/
 }
 
 void UStateTreeLlmAgentComponentSchema::PostLoad()
 {
 	Super::PostLoad();
 	ContextDataDescs[1].Struct = AIControllerClass.Get();
-	/*ContextDataDescs[2].Struct = USystemPromptDataAsset::StaticClass();*/
 }
 
 bool UStateTreeLlmAgentComponentSchema::IsStructAllowed(const UScriptStruct* InScriptStruct) const

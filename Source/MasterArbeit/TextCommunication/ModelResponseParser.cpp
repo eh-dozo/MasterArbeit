@@ -107,6 +107,7 @@ bool UModelResponseParser::ParseModelResponseFromJson(const FJsonObjectWrapper& 
 	FModelResponse& OutModelResponse,
 	FString& OutErrorMessage)
 {
+	#if MA_IS_VERBOSE
 	// --- LOGS
 	FString JsonObjectAsString;
 	const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonObjectAsString);
@@ -119,6 +120,7 @@ bool UModelResponseParser::ParseModelResponseFromJson(const FJsonObjectWrapper& 
 		UE_LOG(LogLlamaRunner, Display, TEXT("%s"), *Line);
 	}
 	// --- END LOGS
+	#endif
 
 	if (!JsonObjectWrapper.JsonObject.IsValid())
 	{

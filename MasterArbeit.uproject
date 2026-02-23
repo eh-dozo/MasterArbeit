@@ -1,68 +1,56 @@
 {
-	"FileVersion": 3,
-	"EngineAssociation": "5.5",
-	"Category": "",
-	"Description": "",
-	"Modules": [
-		{
-			"Name": "MasterArbeit",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "TurnBasedCombatSystem",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "ModelingToolsEditorMode",
-			"Enabled": true,
-			"TargetAllowList": [
-				"Editor"
-			]
-		},
-		{
-			"Name": "GameplayAbilities",
-			"Enabled": true
-		},
-		{
-			"Name": "LowEntryExtStdLib",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/846c2ad08f164f45b0335ecebf85361e"
-		},
-		{
-			"Name": "GameplayStateTree",
-			"Enabled": true
-		},
-		{
-			"Name": "StateTree",
-			"Enabled": true
-		},
-		{
-			"Name": "CircularDependenciesDetector",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/698a2106995e41cb934ada3bb0088a5f"
-		},
-		{
-			"Name": "PCG",
-			"Enabled": true
-		},
-		{
-			"Name": "BP_MD_LLM",
-			"Enabled": false,
-			"SupportedTargetPlatforms": [
-				"Win64"
-			]
-		},
-		{
-			"Name": "NodeToCode",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/865c44cc-4ff6-4fc1-9c19-6fbc6ac430eb"
-		}
-	],
-	"TargetPlatforms": [
-		"Windows"
-	]
+  "FileVersion": 3,
+  "EngineAssociation": "5.5",
+  "Category": "",
+  "Description": "",
+  "Modules": [
+    {
+      "Name": "MasterArbeit",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "TurnBasedCombatSystem",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "ModelingToolsEditorMode",
+      "Enabled": true,
+      "TargetAllowList": [
+        "Editor"
+      ]
+    },
+    {
+      "Name": "GameplayAbilities",
+      "Enabled": true
+    },
+    {
+      "Name": "LowEntryExtStdLib",
+      "Enabled": true,
+      "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/846c2ad08f164f45b0335ecebf85361e"
+    },
+    {
+      "Name": "GameplayStateTree",
+      "Enabled": true
+    },
+    {
+      "Name": "StateTree",
+      "Enabled": true
+    },
+    {
+      "Name": "CircularDependenciesDetector",
+      "Enabled": true,
+      "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/698a2106995e41cb934ada3bb0088a5f"
+    },
+    {
+      "Name": "PCG",
+      "Enabled": true
+    }
+  ],
+  "TargetPlatforms": [
+    "Windows"
+  ]
 }

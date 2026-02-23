@@ -19,9 +19,6 @@ struct MASTERARBEIT_API FStateTreeConstructCharacterPromptTaskInstanceData
 	TObjectPtr<USystemPromptDataAsset> SystemPromptDataAsset = nullptr;
 };
 
-/**
- * 
- */
 USTRUCT(meta=(DisplayName="Character Prompt"))
 struct MASTERARBEIT_API FStateTreeCharacterPromptTask : public FStateTreeTaskCommonBase
 {

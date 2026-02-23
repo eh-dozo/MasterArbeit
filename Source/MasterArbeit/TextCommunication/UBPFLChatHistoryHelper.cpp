@@ -278,7 +278,6 @@ bool UUBPFLChatHistoryHelper::ClearChatHistoryKeepFewShots(UDataTable* ChatHisto
 		return false;
 	}
 
-	// Export before clearing if requested
 	if (bExportBeforeClearing)
 	{
 		// Extract character name from data table asset name

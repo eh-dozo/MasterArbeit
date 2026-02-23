@@ -31,5 +31,11 @@ public class MasterArbeit : ModuleRules
 		PrivateDependencyModuleNames.AddRange([
 			"DeveloperSettings"
 		]);
+
+		const bool bVerboseLogging = false;
+		if (Target.Type == TargetType.Editor && bVerboseLogging)
+			PublicDefinitions.Add("MA_IS_VERBOSE=1");
+		else
+			PublicDefinitions.Add("MA_IS_VERBOSE=0");
 	}
 }
