@@ -25,7 +25,8 @@ public class LlamaRunner : ModuleRules
 			new string[]
 			{
 				"Core",
-				"LlamaCPP"
+				"LlamaCPP",
+				"RHI"
 			}
 			);
 			
@@ -37,6 +38,7 @@ public class LlamaRunner : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"DeveloperSettings"
 			}
 			);
 		

@@ -15,7 +15,7 @@ ALandscapeGrid::ALandscapeGrid()
 void ALandscapeGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -23,4 +23,3 @@ void ALandscapeGrid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

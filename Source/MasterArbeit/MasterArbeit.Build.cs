@@ -8,20 +8,34 @@ public class MasterArbeit : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[]
-		{
+		PublicDependencyModuleNames.AddRange([
 			"Core",
 			"CoreUObject",
-			"Engine", 
-			"InputCore", 
+			"Engine",
+			"InputCore",
 			"NavigationSystem",
-			"AIModule",
 			"Niagara",
 			"EnhancedInput",
 			"TurnBasedCombatSystem",
 			"GameplayAbilities",
 			"GameplayTags",
-			"GameplayTasks"
-		});
+			"GameplayTasks",
+			"AIModule",
+			"StateTreeModule",
+			"GameplayStateTreeModule",
+			"LlamaRunner",
+			"Json",
+			"JsonUtilities"
+		]);
+
+		PrivateDependencyModuleNames.AddRange([
+			"DeveloperSettings"
+		]);
+
+		const bool bVerboseLogging = false;
+		if (Target.Type == TargetType.Editor && bVerboseLogging)
+			PublicDefinitions.Add("MA_IS_VERBOSE=1");
+		else
+			PublicDefinitions.Add("MA_IS_VERBOSE=0");
 	}
 }

@@ -21,16 +21,15 @@ void UTBComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+
 }
 
 
 // Called every frame
 void UTBComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                     FActorComponentTickFunction* ThisTickFunction)
+	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
-

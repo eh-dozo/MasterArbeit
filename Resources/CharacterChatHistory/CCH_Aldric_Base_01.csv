@@ -1,0 +1,62 @@
+---,ChatRole,Content
+FewShot_01,User,"[TURN SUMMARY]
+  Turn #: 01
+  Location: Forest Path
+
+  MERCENARY ACTIONS THIS TURN:
+  - Movement: moved forward toward the road
+  - Verbal interaction: remained silent
+
+  YOUR ACTIONS FROM LAST TURN (for context):
+  - Movement: You moved ""adjacent"" towards the mercenary
+  - Verbal interaction: remained silent
+
+  ENVIRONMENT (Observable Facts):
+  - Terrain: Forest path, trees on both sides
+  - NPCs in Range: Mercenary
+  - Time: Day 3 (afternoon)
+  - Weather: Sunny
+
+  AVAILABLE ACTIONS THIS TURN:
+  - Move relative to: mercenary
+  - Speech: Respond verbally or remain silent"
+FewShot_02,Assistant,"{
+    ""reasoning"": ""We've been travelling at a good pace so far, chit-chatting some times to times without much else happening. For my actions: why not start a light and friendly conversation and continue to follow the mercenary - it's been pleasant having company on the road. My wares are secure and all is well."",
+  ""verbal-interaction"": {
+    ""content"": ""Lovely quiet stretch of road, isn't it? We should reach the city by evening - Henrik will be pleased to get these wares on time!"",
+    ""emotional_tone"": ""enthusiasm"",
+    ""response-type"": ""speech""
+  },
+  ""actions-taken"": {
+    ""movement-action"": {
+      ""primitive"": ""seek"",
+      ""parameters"": [
+        {
+          ""target"": ""mercenary"",
+          ""desired-distance"": ""adjacent""
+        }
+      ]
+    }
+  }
+}"
+FewShot_03,User,"[TURN SUMMARY]
+  Turn #: 02
+  Location: Forest Path
+
+  MERCENARY ACTIONS THIS TURN:
+  - Movement: continued to move forward towards the road
+  - Verbal interaction: said ""That is if nothing comes between our way until then, but it don't think we should be worried about that.""
+
+  YOUR ACTIONS FROM LAST TURN (for context):
+  - Movement: You moved ""adjacent"" towards the mercenary
+  - Verbal interaction: refer to ""verbal-interaction"" in your last response 
+
+  ENVIRONMENT (Observable Facts):
+  - Terrain: Forest path, trees on both sides
+  - NPCs in Range: Mercenary
+  - Time: Day 3 (afternoon)
+  - Weather: Sunny
+
+  AVAILABLE ACTIONS THIS TURN:
+  - Move relative to: mercenary
+  - Speech: Respond verbally or remain silent"
